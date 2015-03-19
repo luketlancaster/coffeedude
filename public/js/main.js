@@ -3,24 +3,31 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var platforms;
 var player;
-var stars;
+var cups;
 var score = 0;
 var scoreText;
 var bullets;
 var bulletTime = 0;
 var bullet;
 var cursors;
+var map;
+var layer;
 
 function preload() {
+  game.load.tilemap('background', 'assets/grassland.json', null, Phaser.Tilemap.TILED_JSON);
+  game.load.image('grass', 'assets/tilesets/grass-tiles-2-small.png');
   game.load.image('sky', 'assets/sbux.jpg');
   game.load.image('ground', 'assets/platform.png');
-  game.load.image('star', 'assets/character/cup.png');
+  game.load.image('cup', 'assets/character/cup.png');
   game.load.image('bowetie', 'assets/character/bowtie.png');
   game.load.spritesheet('dude', 'assets/character/head.png', 48, 48);
-  //game.load.audio('meow', '/phaser-examples/examples/assets/audio/SoundEffects/meow1.mp3');
 }
 
 function create() {
+
+  map = game.add.tilemap('background');
+  map.addTilesetImage('grassland', 'grass');
+
   game.physics.startSystem(Phaser.Physics.ARCADE);
   game.add.sprite(0,0, 'sky').width = 800;
   game.add.sprite(0,0, 'sky').height = 600;
@@ -30,21 +37,14 @@ function create() {
   var ground = platforms.create(0, game.world.height - 64, 'ground');
   ground.scale.setTo(2, 2);
   ground.body.immovable = true;
-  var ledge = platforms.create(400, 400, 'ground');
-  ledge.body.immovable = true;
-  ledge = platforms.create(-150, 250, 'ground');
-  ledge.body.immovable = true;
-  ledge = platforms.create(650, 150, 'ground');
-  ledge.body.immovable = true;
 
   //Sprite
   player = game.add.sprite(32, game.world.height -150, 'dude');
   game.physics.arcade.enable(player);
-  player.body.bounce.y = 0.2;
-  player.body.gravity.y = 400;
+  // player.body.bounce.y = 2;
+  player.body.gravity.y = 0;
   player.body.collideWorldBounds = true;
-  player.animations.add('left', [0], 1, true);
-  player.animations.add('right', [0], 1, true);
+  player.body.allowRotation = false;
 
   //Bullet stuff
   bullets = game.add.group();
@@ -59,54 +59,61 @@ function create() {
     b.body.bounce.y = 0.7 + Math.random() * 0.2;
     b.events.onOutOfBounds.add(resetBullet, this);
   };
-  cursors = game.input.keyboard.createCursorKeys();
-  game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
 
   //Star Stuff
-  stars = game.add.group();
-  stars.enableBody = true;
+  cups = game.add.group();
+  cups.enableBody = true;
   for(var i = 0; i < 12; i++) {
-    var star = stars.create(i * 70, 0, 'star');
-    star.body.gravity.y = 600;
-    star.body.bounce.y = 0.7 + Math.random() * 0.5;
+    var cup = cups.create(i * 70, 0, 'cup');
+    cup.body.gravity.y = 600;
+    cup.body.bounce.y = 0.7 + Math.random() * 0.5;
   }
 }
 
 function update() {
   game.physics.arcade.collide(player, platforms);
-  //game.physics.arcade.overlap(bullets, stars, collisionHandler, null, this);
   var cursors = game.input.keyboard.createCursorKeys();
   player.body.velocity.x = 0;
+
   if(cursors.left.isDown){
     player.body.velocity.x = -350;
-    //player.animations.play('left');
-  } else if(cursors.right.isDown) {
-      player.body.velocity.x = 350;
-      //player.animations.play('right');
-  } else {
-    player.animations.stop();
-    player.frame = 2;
   }
 
-  if(cursors.up.isDown && player.body.touching.down) {
-    player.body.velocity.y = -450;
-    //player.animations.play('up');
+  if (cursors.right.isDown) {
+      player.body.velocity.x = 350;
+  }
+
+  if(cursors.up.isDown) {
+    player.body.velocity.y = -350;
+  } else {
+    player.body.velocity.y = 0;
   }
 
   if(cursors.down.isDown) {
-    player.body.velocity.y = 450;
+    player.body.velocity.y = 350;
   }
-  game.physics.arcade.collide(stars, platforms);
+
+
+
+// if (game.input.activePointer.circle.contains(player.z)) {
+//   player.velocity.x = 0;
+//   player.velocity.y = 0;
+//   console.log('yes')
+// } else {
+//   game.physics.arcade.moveToPointer(player, 600);
+// }
+
+  game.physics.arcade.collide(cups, platforms);
   game.physics.arcade.collide(bullets, platforms);
   game.physics.arcade.collide(bullets, bullets, resetBullet);
-  game.physics.arcade.overlap(player, stars, collectStar, null, this);
-  game.physics.arcade.overlap(bullets, stars, collectStar, collisionHandler, null, this);
+  //game.physics.arcade.overlap(player, cups, playerKill, null, this);
+  game.physics.arcade.overlap(bullets, cups, collectStar, collisionHandler, null, this);
   if(game.input.activePointer.isDown) {
     fireBullet();
   }
 
-  function collectStar(player, star) {
-    star.kill();
+  function collectStar(player, cup) {
+    cup.kill();
     score += 10;
     scoreText.text = 'Score: ' + score;
 
@@ -127,11 +134,18 @@ function fireBullet () {
         {
             bullet.reset(player.x + 6, player.y - 8);
             bullet.body.velocity.y = -300;
-            bulletTime = game.time.now + 150;
+            bulletTime = game.time.now + 450;
             game.physics.arcade.moveToPointer(bullet, 300);
             //sound.play('');
         }
     }
+
+}
+
+function playerKill (player) {
+  player.kill();
+  alert('you lost');
+  location.reload();
 
 }
 
@@ -142,9 +156,9 @@ function resetBullet (bullet) {
 
 }
 
-function collisionHandler (bullet, star) {
+function collisionHandler (bullet, cup) {
 
     bullet.kill();
-    star.kill();
+    cup.kill();
 
 }
