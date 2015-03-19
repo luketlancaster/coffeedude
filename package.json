@@ -17,6 +17,5 @@
   },
   "homepage": "https://github.com/luketlancaster/coffeedude",
   "devDependencies": {
-    "gulp": "^3.8.11"
   }
 }
