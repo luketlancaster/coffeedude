@@ -1,0 +1,22 @@
+{
+  "name": "coffeedude",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luketlancaster/coffeedude.git"
+  },
+  "author": "luke lancaster <luketlancaster@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luketlancaster/coffeedude/issues"
+  },
+  "homepage": "https://github.com/luketlancaster/coffeedude",
+  "devDependencies": {
+    "gulp": "^3.8.11"
+  }
+}
