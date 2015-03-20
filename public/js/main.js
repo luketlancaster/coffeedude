@@ -1,164 +1,79 @@
 'use strict';
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-var platforms;
-var player;
-var cups;
-var score = 0;
-var scoreText;
-var bullets;
-var bulletTime = 0;
-var bullet;
-var cursors;
-var map;
-var layer;
+var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create: create, update: update }),
+    jumpTimer = 0,
+    map,
+    layer,
+    bg,
+    cursors,
+    jumpButton,
+    player;
 
 function preload() {
-  game.load.tilemap('background', 'assets/grassland.json', null, Phaser.Tilemap.TILED_JSON);
-  game.load.image('grass', 'assets/tilesets/grass-tiles-2-small.png');
-  game.load.image('sky', 'assets/sbux.jpg');
-  game.load.image('ground', 'assets/platform.png');
-  game.load.image('cup', 'assets/character/cup.png');
-  game.load.image('bowetie', 'assets/character/bowtie.png');
-  game.load.spritesheet('dude', 'assets/character/head.png', 48, 48);
+  game.load.tilemap('background', '/assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
+  game.load.image('blocks', '/assets/blocks.png');
+  game.load.image('steampunk', '/assets/steampunkish-tilec.png');
+  game.load.image('beans', '/assets/bookshelf.jpg');
+  game.load.image('head', '/assets/character/head.png');
 }
 
 function create() {
+  game.physics.startSystem(Phaser.Physics.ARCADE);
+  //game.world.setBounds(0, 0, 800, 640);
+
+  game.bg = game.add.tileSprite(0, 0, 7040, 640, 'beans');
 
   map = game.add.tilemap('background');
-  map.addTilesetImage('grassland', 'grass');
+  map.addTilesetImage('steampunk');
+  map.addTilesetImage('blocks');
+  map.setCollisionByExclusion([0]);
 
-  game.physics.startSystem(Phaser.Physics.ARCADE);
-  game.add.sprite(0,0, 'sky').width = 800;
-  game.add.sprite(0,0, 'sky').height = 600;
-  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#fff' });
-  platforms = game.add.group();
-  platforms.enableBody = true;
-  var ground = platforms.create(0, game.world.height - 64, 'ground');
-  ground.scale.setTo(2, 2);
-  ground.body.immovable = true;
+  layer = map.createLayer('foreground');
+  layer.resizeWorld();
 
-  //Sprite
-  player = game.add.sprite(32, game.world.height -150, 'dude');
-  game.physics.arcade.enable(player);
-  // player.body.bounce.y = 2;
-  player.body.gravity.y = 0;
+  game.physics.arcade.gravity.y = 450;
+
+  //player stuff
+
+  player = game.add.sprite(40, 30, 'head');
+  game.physics.enable(player, Phaser.Physics.ARCADE);
+  player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
-  player.body.allowRotation = false;
 
-  //Bullet stuff
-  bullets = game.add.group();
-  bullets.enableBody = true;
-  bullets.physicsBodyType = Phaser.Physics.ARCADE;
-  for (var i = 0; i < 20; i++) {
-    var b = bullets.create(100000, 10000000, 'bowetie');
-    b.name = 'bowetie' + i;
-    b.exists = false;
-    b.visible = true;
-    b.checkWorldBounds = true;
-    b.body.bounce.y = 0.7 + Math.random() * 0.2;
-    b.events.onOutOfBounds.add(resetBullet, this);
-  };
+  cursors = game.input.keyboard.createCursorKeys();
+  jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-  //Star Stuff
-  cups = game.add.group();
-  cups.enableBody = true;
-  for(var i = 0; i < 12; i++) {
-    var cup = cups.create(i * 70, 0, 'cup');
-    cup.body.gravity.y = 600;
-    cup.body.bounce.y = 0.7 + Math.random() * 0.5;
-  }
+  game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
+
+  game.cameraLastX = game.camera.x;
+  game.cameraLastY = game.camera.y;
 }
 
 function update() {
-  game.physics.arcade.collide(player, platforms);
-  var cursors = game.input.keyboard.createCursorKeys();
-  player.body.velocity.x = 0;
 
-  if(cursors.left.isDown){
-    player.body.velocity.x = -350;
-  }
+    game.physics.arcade.collide(player, layer);
+    player.body.velocity.x = 0;
 
-  if (cursors.right.isDown) {
-      player.body.velocity.x = 350;
-  }
-
-  if(cursors.up.isDown) {
-    player.body.velocity.y = -350;
-  } else {
-    player.body.velocity.y = 0;
-  }
-
-  if(cursors.down.isDown) {
-    player.body.velocity.y = 350;
-  }
-
-
-
-// if (game.input.activePointer.circle.contains(player.z)) {
-//   player.velocity.x = 0;
-//   player.velocity.y = 0;
-//   console.log('yes')
-// } else {
-//   game.physics.arcade.moveToPointer(player, 600);
-// }
-
-  game.physics.arcade.collide(cups, platforms);
-  game.physics.arcade.collide(bullets, platforms);
-  game.physics.arcade.collide(bullets, bullets, resetBullet);
-  //game.physics.arcade.overlap(player, cups, playerKill, null, this);
-  game.physics.arcade.overlap(bullets, cups, collectStar, collisionHandler, null, this);
-  if(game.input.activePointer.isDown) {
-    fireBullet();
-  }
-
-  function collectStar(player, cup) {
-    cup.kill();
-    score += 10;
-    scoreText.text = 'Score: ' + score;
-
-    if(score === 120) {
-      alert('you won');
-      location.reload();
+    if (cursors.left.isDown) {
+        player.body.velocity.x = -250;
+    } else if (cursors.right.isDown) {
+        player.body.velocity.x = 250;
     }
-  }
-}
-
-function fireBullet () {
-
-    if (game.time.now > bulletTime)
+    if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
-        bullet = bullets.getFirstExists(false);
-
-        if (bullet)
-        {
-            bullet.reset(player.x + 6, player.y - 8);
-            bullet.body.velocity.y = -300;
-            bulletTime = game.time.now + 450;
-            game.physics.arcade.moveToPointer(bullet, 300);
-            //sound.play('');
-        }
+        player.body.velocity.y = -250;
+        jumpTimer = game.time.now + 750;
     }
 
+    if(game.camera.x !== game.cameraLastX){
+      game.bg.x -= 0.2 * (game.cameraLastX - game.camera.x);
+      game.cameraLastX = game.camera.x;
+    }
+    if(game.camera.y !== game.cameraLastY){
+      game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
+      game.cameraLastY = game.camera.y;
 }
-
-function playerKill (player) {
-  player.kill();
-  alert('you lost');
-  location.reload();
-
-}
-
-//  Called if the bullet goes out of the screen
-function resetBullet (bullet) {
-
-    bullet.kill();
 
 }
 
-function collisionHandler (bullet, cup) {
 
-    bullet.kill();
-    cup.kill();
-
-}
