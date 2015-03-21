@@ -4,6 +4,7 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     jumpTimer = 0,
     map,
     layer,
+    cups,
     cup,
     cursors,
     jumpButton,
@@ -45,11 +46,15 @@ function create() {
   jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
 
-  cup = game.add.sprite(90, 90, 'cup');
-  game.physics.enable(cup, Phaser.Physics.ARCADE);
-  cup.body.collideWorldBounds = true;
-  cup.body.bounce.y = 0.1;
-  cup.body.setSize(52, 64);
+
+  cups = game.add.group();
+  cups.enableBody = true;
+  for(var i = 0; i < 40; i++) {
+    cup = cups.create(i * 400, 0, 'cup');
+    game.physics.enable(cup, Phaser.Physics.ARCADE);
+    cup.body.collideWorldBounds = true;
+    cup.body.setSize(52, 63);
+  }
 
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
@@ -58,8 +63,9 @@ function create() {
 function update() {
 
     game.physics.arcade.collide(player, layer);
-    game.physics.arcade.collide(cup, layer);
-    game.physics.arcade.collide(player, cup);
+    game.physics.arcade.collide(cups, layer);
+    game.physics.arcade.collide(player, cups);
+    game.physics.arcade.collide(cups, cups);
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown) {
@@ -82,8 +88,12 @@ function update() {
       game.cameraLastY = game.camera.y;
     }
 
-    if(cup.body.onFloor()) {
-      cup.body.velocity.y = -250;
+    for(var i = 0; i < 40; i++) {
+
+      if(cups.children[i].body.onFloor()) {
+        cups.children[i].body.velocity.y = -550;
+      }
+
     }
 
 }
