@@ -4,7 +4,7 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     jumpTimer = 0,
     map,
     layer,
-    bg,
+    cup,
     cursors,
     jumpButton,
     player;
@@ -15,6 +15,7 @@ function preload() {
   game.load.image('steampunk', '/assets/steampunkish-tilec.png');
   game.load.image('beans', '/assets/bookshelf.jpg');
   game.load.image('head', '/assets/character/head.png');
+  game.load.image('cup', '/assets/buxscups.png')
 }
 
 function create() {
@@ -26,7 +27,7 @@ function create() {
   map = game.add.tilemap('background');
   map.addTilesetImage('steampunk');
   map.addTilesetImage('blocks');
-  map.setCollisionByExclusion([0]);
+  map.setCollisionByExclusion([1]);
 
   layer = map.createLayer('foreground');
   layer.resizeWorld();
@@ -35,15 +36,20 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(40, 30, 'head');
+  player = game.add.sprite(40, 520, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
-  player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
+  player.body.setSize(24, 38);
 
   cursors = game.input.keyboard.createCursorKeys();
   jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
   game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
+
+  cup = game.add.sprite(90, 90, 'cup');
+  game.physics.enable(cup, Phaser.Physics.ARCADE);
+  cup.body.collideWorldBounds = true;
+  cup.body.bounce.y = 0.1;
+  cup.body.setSize(52, 64);
 
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
@@ -52,6 +58,8 @@ function create() {
 function update() {
 
     game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(cup, layer);
+    game.physics.arcade.collide(player, cup);
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown) {
@@ -72,7 +80,11 @@ function update() {
     if(game.camera.y !== game.cameraLastY){
       game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
       game.cameraLastY = game.camera.y;
-}
+    }
+
+    if(cup.body.onFloor()) {
+      cup.body.velocity.y = -250;
+    }
 
 }
 
