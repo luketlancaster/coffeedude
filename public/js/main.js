@@ -16,7 +16,7 @@ function preload() {
   game.load.image('steampunk', '/assets/steampunkish-tilec.png');
   game.load.image('beans', '/assets/bookshelf.jpg');
   game.load.image('head', '/assets/character/head.png');
-  game.load.image('cup', '/assets/buxscups.png')
+  game.load.spritesheet('cup', '/assets/buxscupsheet.png', 64, 64, 4);
 }
 
 function create() {
@@ -37,7 +37,7 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(40, 520, 'head');
+  player = game.add.sprite(70, 520, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = true;
   player.body.setSize(24, 38);
@@ -50,10 +50,12 @@ function create() {
   cups = game.add.group();
   cups.enableBody = true;
   for(var i = 0; i < 40; i++) {
-    cup = cups.create(i * 400, 0, 'cup');
+    cup = cups.create(i * 400, 400, 'cup');
     game.physics.enable(cup, Phaser.Physics.ARCADE);
     cup.body.collideWorldBounds = true;
     cup.body.setSize(52, 63);
+    cup.animations.add('left', [0, 1, 2, 3], 10, true);
+    cup.animations.add('right', [0, 3, 2, 1], 10, true);
   }
 
   game.cameraLastX = game.camera.x;
@@ -66,6 +68,7 @@ function update() {
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(player, cups);
     game.physics.arcade.collide(cups, cups);
+
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown) {
@@ -92,6 +95,14 @@ function update() {
 
       if(cups.children[i].body.onFloor()) {
         cups.children[i].body.velocity.y = -550;
+      }
+
+      if(cursors.right.isDown) {
+        game.physics.arcade.moveToObject(cups.children[i], player);
+        cups.children[i].animations.play('right');
+      } else {
+        cups.children[i].body.velocity.x = 0;
+        cups.children[i].animations.play('left');
       }
 
     }
