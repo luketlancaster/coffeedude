@@ -7,7 +7,11 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     cups,
     cup,
     cursors,
+    bowties,
+    bowtie,
+    bowTime = 0,
     jumpButton,
+    fireKey,
     player;
 
 function preload() {
@@ -16,11 +20,13 @@ function preload() {
   game.load.image('steampunk', '/assets/steampunkish-tilec.png');
   game.load.image('beans', '/assets/bookshelf.jpg');
   game.load.image('head', '/assets/character/head.png');
+  game.load.image('bowtie', '/assets/bowtie.png');
   game.load.spritesheet('cup', '/assets/buxscupsheet.png', 64, 64, 4);
 }
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
+  fireKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
   //game.world.setBounds(0, 0, 800, 640);
 
   game.bg = game.add.tileSprite(0, 0, 7040, 640, 'beans');
@@ -33,7 +39,7 @@ function create() {
   layer = map.createLayer('foreground');
   layer.resizeWorld();
 
-  game.physics.arcade.gravity.y = 450;
+  //game.physics.arcade.gravity.y = 450;
 
   //player stuff
 
@@ -41,11 +47,14 @@ function create() {
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = true;
   player.body.setSize(24, 38);
+  player.body.gravity.y = 450;
 
   cursors = game.input.keyboard.createCursorKeys();
   jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
 
+
+  //enemies
 
   cups = game.add.group();
   cups.enableBody = true;
@@ -54,8 +63,24 @@ function create() {
     game.physics.enable(cup, Phaser.Physics.ARCADE);
     cup.body.collideWorldBounds = true;
     cup.body.setSize(52, 63);
+    cup.body.gravity.y = 450;
     cup.animations.add('left', [0, 1, 2, 3], 10, true);
     cup.animations.add('right', [0, 3, 2, 1], 10, true);
+  }
+
+  //bowties
+  bowties = game.add.group();
+  bowties.enableBody = true;
+  //bowties.setAll('outOfBoundsKill', true);
+  bowties.physicsBodyType = Phaser.Physics.ARCADE;
+  for(var i = 0; i < 20; i++) {
+    var b = bowties.create(100000, 1000000, 'bowtie');
+    b.name = 'bowtie' + i;
+    b.body.gravity.y = 0;
+    b.exists = false;
+    b.visible = true;
+    b.events.onOutOfBounds.add(resetBowtie, this);
+    b.checkWorldBounds = true;
   }
 
   game.cameraLastX = game.camera.x;
@@ -91,6 +116,7 @@ function update() {
       game.cameraLastY = game.camera.y;
     }
 
+    //cups
     for(var i = 0; i < 40; i++) {
 
       if(cups.children[i].body.onFloor()) {
@@ -107,6 +133,35 @@ function update() {
 
     }
 
+    //bowties
+    for(var u = 0; u < 20; u++) {
+      if(bowties.children[u].x > (game.cameraLastX + 4000)) {
+        bowties.children[u].kill();
+      }
+    }
+
+    if(fireKey.isDown) {
+      fireBowtie();
+    }
+
 }
 
+function fireBowtie() {
+   if (game.time.now > bowTime)
+    {
+        bowtie = bowties.getFirstExists(false);
+
+        if (bowtie)
+        {
+            bowtie.reset(player.x + 6, player.y - 8);
+            bowtie.body.velocity.x = 500;
+            bowTime = game.time.now + 750;
+            //sound.play('');
+        }
+    }
+}
+
+function resetBowtie(bowtie) {
+  bowtie.kill();
+}
 
