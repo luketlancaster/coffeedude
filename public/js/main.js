@@ -93,6 +93,8 @@ function update() {
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(player, cups);
     game.physics.arcade.collide(cups, cups);
+    //game.physics.arcade.collide(bowties, layer, resetBowtie, this);
+    game.physics.arcade.overlap(bowties, cups, collisionHandler, null, this);
 
     player.body.velocity.x = 0;
 
@@ -163,5 +165,10 @@ function fireBowtie() {
 
 function resetBowtie(bowtie) {
   bowtie.kill();
+}
+
+function collisionHandler (bowtie, cup) {
+    bowtie.kill();
+    cup.kill();
 }
 
