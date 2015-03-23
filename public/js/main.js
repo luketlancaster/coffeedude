@@ -6,6 +6,8 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     layer,
     cups,
     cup,
+    coffeecans,
+    coffeecan,
     cursors,
     bowties,
     bowtie,
@@ -21,6 +23,7 @@ function preload() {
   game.load.image('beans', '/assets/bookshelf.jpg');
   game.load.image('head', '/assets/character/head.png');
   game.load.image('bowtie', '/assets/bowtie.png');
+  game.load.image('coffeecan', '/assets/coffeecan.png');
   game.load.spritesheet('cup', '/assets/buxscupsheet.png', 64, 64, 4);
 }
 
@@ -58,25 +61,34 @@ function create() {
 
   cups = game.add.group();
   cups.enableBody = true;
-  for(var i = 0; i < 40; i++) {
+  for(var i = 0; i < 20; i++) {
     cup = cups.create(i * 400, 400, 'cup');
     game.physics.enable(cup, Phaser.Physics.ARCADE);
     cup.body.collideWorldBounds = true;
     cup.body.setSize(52, 63);
-    cup.body.gravity.y = 450;
+    cup.body.gravity.y = 950;
     cup.animations.add('left', [0, 1, 2, 3], 10, true);
     cup.animations.add('right', [0, 3, 2, 1], 10, true);
+  }
+
+  coffeecans = game.add.group();
+  coffeecans.enableBody = true;
+  for(var i = 0; i < 20; i++) {
+    coffeecan = coffeecans.create((i * 1150), 350, 'coffeecan');
+    coffeecan.body.collideWorldBounds = true;
+    coffeecan.body.setSize(41, 48);
+    coffeecan.body.gravity.y = 350;
   }
 
   //bowties
   bowties = game.add.group();
   bowties.enableBody = true;
-  //bowties.setAll('outOfBoundsKill', true);
   bowties.physicsBodyType = Phaser.Physics.ARCADE;
   for(var i = 0; i < 20; i++) {
     var b = bowties.create(100000, 1000000, 'bowtie');
     b.name = 'bowtie' + i;
     b.body.gravity.y = 0;
+    b.body.setSize(64, 36);
     b.exists = false;
     b.visible = true;
     b.events.onOutOfBounds.add(resetBowtie, this);
@@ -91,9 +103,10 @@ function update() {
 
     game.physics.arcade.collide(player, layer);
     game.physics.arcade.collide(cups, layer);
+    game.physics.arcade.collide(coffeecans, layer);
     game.physics.arcade.collide(player, cups);
     game.physics.arcade.collide(cups, cups);
-    //game.physics.arcade.collide(bowties, layer, resetBowtie, this);
+    game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, collisionHandler, null, this);
 
     player.body.velocity.x = 0;
@@ -119,20 +132,20 @@ function update() {
     }
 
     //cups
-    for(var i = 0; i < 40; i++) {
-
+    for(var i = 0; i < 20; i++) {
+      cups.children[0].kill();
       if(cups.children[i].body.onFloor()) {
-        cups.children[i].body.velocity.y = -550;
-      }
-
-      if(cursors.right.isDown) {
-        game.physics.arcade.moveToObject(cups.children[i], player);
-        cups.children[i].animations.play('right');
-      } else {
-        cups.children[i].body.velocity.x = 0;
+        cups.children[i].body.velocity.y = -350;
         cups.children[i].animations.play('left');
       }
+    }
 
+    //coffeecans
+    for(var p = 0; p < 20; p++) {
+      coffeecans.children[0].kill();
+      if(coffeecans.children[p].body.onFloor()) {
+        coffeecans.children[p].body.velocity.x = 350;
+      }
     }
 
     //bowties
@@ -164,6 +177,10 @@ function fireBowtie() {
 }
 
 function resetBowtie(bowtie) {
+  bowtie.kill();
+}
+
+function killBowtie(bowtie, layer) {
   bowtie.kill();
 }
 
