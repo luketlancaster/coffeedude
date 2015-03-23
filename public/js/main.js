@@ -17,14 +17,13 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     player;
 
 function preload() {
-  game.load.tilemap('background', '/assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
-  game.load.image('blocks', '/assets/blocks.png');
-  game.load.image('steampunk', '/assets/steampunkish-tilec.png');
-  game.load.image('beans', '/assets/bookshelf.jpg');
-  game.load.image('head', '/assets/character/head.png');
-  game.load.image('bowtie', '/assets/bowtie.png');
-  game.load.image('coffeecan', '/assets/coffeecan.png');
-  game.load.spritesheet('cup', '/assets/buxscupsheet.png', 64, 64, 4);
+  game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
+  game.load.image('blocks', './assets/blocks.png');
+  game.load.image('steampunk', './assets/steampunkish-tilec.png');
+  game.load.image('beans', './assets/bookshelf.jpg');
+  game.load.image('head', './assets/character/head.png');
+  game.load.image('bowtie', './assets/bowtie.png');
+  game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
 }
 
 function create() {
