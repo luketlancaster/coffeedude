@@ -12,11 +12,11 @@ var bullet;
 var cursors;
 
 function preload() {
-  game.load.image('sky', 'assets/sbux.jpg');
-  game.load.image('ground', 'assets/platform.png');
-  game.load.image('star', 'assets/character/cup.png');
-  game.load.image('bowetie', 'assets/character/bowtie.png');
-  game.load.spritesheet('dude', 'assets/character/head.png', 48, 48);
+  game.load.image('sky', './assets/sbux.jpg');
+  game.load.image('ground', './assets/platform.png');
+  game.load.image('star', './assets/character/cup.png');
+  game.load.image('bowetie', './assets/character/bowtie.png');
+  game.load.spritesheet('dude', './assets/character/head.png', 48, 48);
   //game.load.audio('meow', '/phaser-examples/examples/assets/audio/SoundEffects/meow1.mp3');
 }
 
