@@ -12,6 +12,7 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     cursors,
     bowties,
     music,
+    facing = 'right',
     bowtie,
     bowTime = 0,
     fireButton,
@@ -27,10 +28,11 @@ function preload() {
   game.load.image('blocks', './assets/blocks.png');
   game.load.image('steampunk', './assets/steampunkish-tilec.png');
   game.load.image('bookshelf', './assets/bookshelf.jpg');
-  game.load.image('head', './assets/character/head.png');
+  //game.load.image('head', './assets/character/head.png');
   game.load.image('bowtie', './assets/bowtie.png');
   game.load.image('coffeecan', './assets/coffeecan.png');
   game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
+  game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
   game.load.audio('shoot', './assets/Pecheew.m4a');
   game.load.audio('explosion', './assets/Explosion.m4a');
   game.load.audio('jump', './assets/Whoop.m4a');
@@ -69,6 +71,8 @@ function create() {
   player.body.collideWorldBounds = true;
   player.body.setSize(36, 56, 14, -8);
   player.body.gravity.y = 450;
+  player.animations.add('left', [2]);
+  player.animations.add('right', [1]);
 
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -135,12 +139,16 @@ function update() {
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown) {
-        player.body.velocity.x = -250;
+      player.body.velocity.x = -250;
+      player.animations.play('left');
     } else if (cursors.right.isDown) {
-        player.body.velocity.x = 250;
+      player.body.velocity.x = 250;
+      player.animations.play('right');
+    } else {
+      player.frame = 0;
     }
-    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer)
-    {
+
+    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
         player.body.velocity.y = -250;
         jumpTimer = game.time.now + 750;
         jumpSound.play();
@@ -150,9 +158,16 @@ function update() {
       game.bg.x -= 0.2 * (game.cameraLastX - game.camera.x);
       game.cameraLastX = game.camera.x;
     }
+
     if(game.camera.y !== game.cameraLastY){
       game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
       game.cameraLastY = game.camera.y;
+    }
+
+    if(player.body.velocity.x >= 0) {
+      facing = 'right';
+    } else {
+      facing = 'left';
     }
 
     //cups
@@ -198,7 +213,7 @@ function update() {
 }
 
 function fireBowtie() {
-   if (game.time.now > bowTime  && player.body.facing !== 1) {
+   if (game.time.now > bowTime  && facing === 'right') {
         bowtie = bowties.getFirstExists(false);
 
         if (bowtie) {
@@ -207,7 +222,7 @@ function fireBowtie() {
             bowTime = game.time.now + 750;
             shotSound.play();
         }
-    } else if (game.time.now > bowTime && player.body.facing === 1) {
+    } else if (game.time.now > bowTime && facing === 'left') {
         bowtie = bowties.getFirstExists(false);
 
         if (bowtie) {
