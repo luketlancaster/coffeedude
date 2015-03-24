@@ -120,7 +120,7 @@ function create() {
   //cans
   coffeecans = game.add.group();
   coffeecans.enableBody = true;
-  coffeecans.createMultiple(20, 'coffeecan');
+  coffeecans.createMultiple(13, 'coffeecan');
   coffeecans.setAll('collideWorldBounds', true);
   coffeecans.forEach(function(coffeecan) {
     game.physics.enable(coffeecan, Phaser.Physics.ARCADE);
@@ -129,11 +129,11 @@ function create() {
     coffeecan.body.setSize(41, 48);
   });
 
-  var coffeecanPosition = [220, 440];
+  var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6596, 6844];
   var counter = 0;
 
   coffeecans.forEach(function(coffeecan) {
-    coffeecan.reset(coffeecanPosition[counter], 400);
+    coffeecan.reset(coffeecanPosition[counter], 300);
     counter++;
   }, this);
 
