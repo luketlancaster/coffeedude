@@ -86,7 +86,7 @@ function create() {
 
   cups = game.add.group();
   cups.enableBody = true;
-  cups.createMultiple(20, 'cup');
+  cups.createMultiple(15, 'cup');
   cups.setAll('collideWorldBounds', true);
   cups.setAll('body.gravity.y', 950);
   cups.forEach(function(cup) {
@@ -98,24 +98,13 @@ function create() {
     cup.animations.add('right', [0, 3, 2, 1], 10, true);
   });
 
-  var cupPosition = [];
+  var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
   var counter = 0;
 
   cups.forEach(function(cup) {
-    cup.reset(cupPosition[counter], 400);
+    cup.reset(cupPosition[counter], 300);
     counter++;
   }, this);
-
-  // for(var i = 0; i < 20; i++) {
-  //   cup = cups.create(i * 420, 200, 'cup');
-  //   game.physics.enable(cup, Phaser.Physics.ARCADE);
-  //   cup.body.collideWorldBounds = true;
-  //   cup.body.setSize(52, 63);
-  //   cup.body.gravity.y = 950;
-  //   cup.animations.add('left', [0, 1, 2, 3], 10, true);
-  //   cup.animations.add('right', [0, 3, 2, 1], 10, true);
-  // }
-
 
   //cans
   coffeecans = game.add.group();
@@ -129,7 +118,7 @@ function create() {
     coffeecan.body.setSize(41, 48);
   });
 
-  var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6596, 6844];
+  var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
   var counter = 0;
 
   coffeecans.forEach(function(coffeecan) {
@@ -238,7 +227,7 @@ function fireBowtie() {
         if (bowtie) {
             bowtie.reset(player.x + 30, player.y - 20);
             bowtie.body.velocity.x = 500;
-            bowTime = game.time.now + 750;
+            bowTime = game.time.now + 350;
             shotSound.play();
         }
     } else if (game.time.now > bowTime && facing === 'left') {
