@@ -1,7 +1,7 @@
 'use strict';
+game.state.add('lvl1', {create:create, update:update});
 
-var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create: create, update: update }),
-    jumpTimer = 0,
+var jumpTimer = 0,
     map,
     layer,
     blockedLayer,
@@ -25,35 +25,16 @@ var game = new Phaser.Game(800, 640, Phaser.AUTO, '', { preload: preload, create
     cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
 
-function preload() {
-  game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
-  game.load.image('blocks', './assets/blocks.png');
-  game.load.image('steampunk', './assets/steampunkish-tilec.png');
-  game.load.image('bookshelf', './assets/bookshelf.jpg');
-  //game.load.image('head', './assets/character/head.png');
-  game.load.image('bowtie', './assets/bowtie.png');
-  game.load.image('coffeecan', './assets/coffeecan.png');
-  game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
-  game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
-  game.load.audio('shoot', './assets/Pecheew.m4a');
-  game.load.audio('explosion', './assets/Explosion.m4a');
-  game.load.audio('jump', './assets/Whoop.m4a');
-  //game.load.audio('train', './assets/dark.m4a');
-  game.load.audio('scream', './assets/WilhelmScream.mp3');
-}
-
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
   fireKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
   cupIndex = 0;
 
   //sounds
-  jumpSound = game.add.audio('jump');
   explosionSound = game.add.audio('explosion');
   shotSound = game.add.audio('shoot');
-  //music = game.add.audio('train');
   scream = game.add.audio('scream');
-  //game.world.setBounds(0, 0, 800, 640);
+  game.world.setBounds(0, 0, 800, 640);
 
   game.bg = game.add.tileSprite(0, 0, 7040, 640, 'bookshelf');
 
@@ -65,7 +46,6 @@ function create() {
   layer = map.createLayer('foreground');
   layer.resizeWorld();
 
-  //game.physics.arcade.gravity.y = 450;
 
   //player stuff
 
@@ -84,6 +64,9 @@ function create() {
 
   //enemies
 
+  var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
+  var counter = 0;
+
   cups = game.add.group();
   cups.enableBody = true;
   cups.createMultiple(15, 'cup');
@@ -98,15 +81,16 @@ function create() {
     cup.animations.add('right', [0, 3, 2, 1], 10, true);
   });
 
-  var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
-  var counter = 0;
-
   cups.forEach(function(cup) {
     cup.reset(cupPosition[counter], 300);
     counter++;
   }, this);
 
   //cans
+
+  var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
+  var counter = 0;
+
   coffeecans = game.add.group();
   coffeecans.enableBody = true;
   coffeecans.createMultiple(13, 'coffeecan');
@@ -117,9 +101,6 @@ function create() {
     coffeecan.anchor.set(0.5, 0.5);
     coffeecan.body.setSize(41, 48);
   });
-
-  var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
-  var counter = 0;
 
   coffeecans.forEach(function(coffeecan) {
     coffeecan.reset(coffeecanPosition[counter], 300);
@@ -132,14 +113,10 @@ function create() {
   bowties.enableBody = true;
   bowties.createMultiple(2, 'bowtie');
   bowties.setAll('body.setSize', 64, 36);
-  //bowties.physicsBodyType = Phaser.Physics.ARCADE;
 
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
 
-  // music.volume = 0.7;
-  // music.loop = true;
-  // music.play();
 }
 
 function update() {
@@ -148,7 +125,7 @@ function update() {
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(coffeecans, layer);
     game.physics.arcade.collide(player, cups);
-    game.physics.arcade.collide(cups, cups);
+    game.physics.arcade.collide(player, coffeecans);
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
@@ -168,7 +145,6 @@ function update() {
     if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
         player.body.velocity.y = -250;
         jumpTimer = game.time.now + 750;
-        jumpSound.play();
     }
 
     if(game.camera.x !== game.cameraLastX){
@@ -196,10 +172,6 @@ function update() {
     });
 
     //coffeecans
-    // console.log('cupIndex', cupIndex);
-    // console.log('cupPath.length', cupPath.length);
-    // console.log('cupIndex === 0', cupIndex === 0);
-    // console.log('cupIndex === cupPath.length - 1', cupIndex === cupPath.length - 1);
     coffeecans.forEachAlive(function(can){
       can.body.velocity.x = 0;
       can.body.velocity.x = cupPath[cupIndex];
@@ -225,7 +197,7 @@ function fireBowtie() {
         bowtie = bowties.getFirstExists(false);
 
         if (bowtie) {
-            bowtie.reset(player.x + 30, player.y - 20);
+            bowtie.reset(player.x - 30, player.y - 20);
             bowtie.body.velocity.x = 500;
             bowTime = game.time.now + 350;
             shotSound.play();
@@ -257,7 +229,7 @@ function collisionHandler (bowtie, cup) {
 }
 
 function cupHandler (bowtie, cup) {
-    scream.play();
+    explosionSound.play();
     bowtie.kill();
     cup.kill();
 }
