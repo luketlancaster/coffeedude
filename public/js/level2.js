@@ -4,8 +4,7 @@ game.state.add('lvl2', {create:create, update:update});
 var jumpTimer = 0,
     map,
     layer,
-    colLayer,
-    blockedLayer,
+    platformLayer,
     cups,
     cup,
     coffeecans,
@@ -42,21 +41,22 @@ function create() {
   map = game.add.tilemap('background2');
   map.addTilesetImage('steampunk');
   map.addTilesetImage('blocks');
-  map.addTilesetImage('steampunk');
-  map.setCollisionByExclusion([1]);
+  map.addTilesetImage('trees2');
 
   layer = map.createLayer('background');
-  colLayer = map.createLayer('platforms');
+  platformLayer = map.createLayer('platforms');
   layer.resizeWorld();
+  platformLayer.resizeWorld();
+  map.setCollisionByExclusion([1]);
 
 
   //player stuff
 
-  player = game.add.sprite(70, 100, 'head');
+  player = game.add.sprite(0, 0, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
-  player.body.collideWorldBounds = true;
+  player.body.collideWorldBounds = false;
   player.body.setSize(36, 56, 14, -8);
-  player.body.gravity.y = 500;
+  player.body.gravity.y = 600;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
 
@@ -117,6 +117,11 @@ function create() {
   bowties.createMultiple(2, 'bowtie');
   bowties.setAll('body.setSize', 64, 36);
 
+  beans = game.add.group();
+  beans.enableBody = true;
+  beans.createMultiple(2, 'bean');
+  beans.setAll('body.setSize', 32, 32);
+
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
 
@@ -124,7 +129,7 @@ function create() {
 
 function update() {
 
-    game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(player, platformLayer);
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(coffeecans, layer);
     game.physics.arcade.collide(player, cups);
@@ -145,7 +150,12 @@ function update() {
       player.frame = 0;
     }
 
-    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+    if(player.body.y >= 750) {
+      player.body.y = -50;
+      player.body.x = player.body.x + 1;
+    }
+
+    if (player.body.onFloor() && game.time.now > jumpTimer) {
         player.body.velocity.y = -350;
         jumpTimer = game.time.now + 750;
     }

@@ -1,5 +1,5 @@
 'use strict';
-game.state.add('lvl1', {create:create, update:update});
+game.state.add('lvl1', {create:create, update:update, render:render});
 
 var jumpTimer = 0,
     map,
@@ -15,6 +15,9 @@ var jumpTimer = 0,
     facing = 'right',
     bowtie,
     bowTime = 0,
+    cupTime = 0,
+    beans,
+    bean,
     fireButton,
     fireKey,
     shotSound,
@@ -52,7 +55,7 @@ function create() {
   player = game.add.sprite(70, 500, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = true;
-  player.body.setSize(36, 56, 14, -8);
+  player.body.setSize(25, 50, 19, 0);
   player.body.gravity.y = 450;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
@@ -114,6 +117,14 @@ function create() {
   bowties.createMultiple(2, 'bowtie');
   bowties.setAll('body.setSize', 64, 36);
 
+  beans = game.add.group();
+  beans.enableBody = true;
+  beans.createMultiple(50, 'bean');
+  //beans.setAll('body.setSize', 22, 22);
+  beans.forEach(function(bean){
+    bean.body.setSize(15, 15);
+  });
+
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
 
@@ -129,6 +140,9 @@ function update() {
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
+    game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
+    game.physics.arcade.overlap(player, coffeecans, playerDeathHandler, null, this);
+    game.physics.arcade.overlap(player, cups, playerDeathHandler, null, this);
 
     player.body.velocity.x = 0;
 
@@ -169,6 +183,10 @@ function update() {
         cup.body.velocity.y = -350;
         cup.animations.play('left');
       }
+
+      if(cup.body.x - player.body.x <= 200) {
+        cupFire(cup);
+      }
     });
 
     //coffeecans
@@ -189,6 +207,12 @@ function update() {
     if(fireButton.isDown) {
       fireBowtie();
     }
+
+    beans.forEachAlive(function(bean){
+      if(bean.body.x - game.cameraLastX <= 0) {
+        bean.kill();
+      }
+    });
 
 }
 
@@ -214,6 +238,19 @@ function fireBowtie() {
   }
 }
 
+function cupFire (cup) {
+  if (game.time.now > cupTime)
+  {
+    bean = beans.getFirstExists(false);
+    if (bean) {
+      bean.anchor.setTo(0.5, 0.5);
+      bean.reset(cup.body.x , cup.body.y);
+      cupTime = game.time.now + 2000;
+      game.physics.arcade.moveToObject(bean, player, 120);
+    }
+  }
+}
+
 function resetBowtie(bowtie) {
   bowtie.kill();
 }
@@ -228,9 +265,21 @@ function collisionHandler (bowtie, cup) {
     cup.kill();
 }
 
+function playerDeathHandler (player, enemy) {
+    explosionSound.play();
+    player.kill();
+    enemy.kill();
+    alert('game over!');
+}
+
 function cupHandler (bowtie, cup) {
     explosionSound.play();
     bowtie.kill();
     cup.kill();
+}
+
+function render() {
+  game.debug.body(beans.children[0]);
+  game.debug.body(player);
 }
 
