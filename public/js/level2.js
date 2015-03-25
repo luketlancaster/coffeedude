@@ -22,7 +22,7 @@ var jumpTimer = 0,
     explosionSound,
     scream,
     player,
-    cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
+    cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
 
 function create() {
@@ -52,11 +52,11 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(0, 0, 'head');
+  player = game.add.sprite(70, 0, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = false;
   player.body.setSize(36, 56, 14, -8);
-  player.body.gravity.y = 600;
+  //player.body.gravity.y = 600;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
 
@@ -67,48 +67,47 @@ function create() {
 
   //enemies
 
-  // var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
-  // var counter = 0;
+  var cupPosition = [475, 1079, 1733, 2113, 3015, 3711, 4839, 5252, 5678, 6688];
+  var counter = 0;
 
-  // cups = game.add.group();
-  // cups.enableBody = true;
-  // cups.createMultiple(15, 'cup');
-  // cups.setAll('collideWorldBounds', true);
-  // cups.setAll('body.gravity.y', 950);
-  // cups.forEach(function(cup) {
-  //   game.physics.enable(cup, Phaser.Physics.ARCADE);
-  //   cup.anchor.set(0.5, 0.5);
-  //   cup.body.setSize(52, 63);
-  //   cup.body.gravity.y = 950;
-  //   cup.animations.add('left', [0, 1, 2, 3], 10, true);
-  //   cup.animations.add('right', [0, 3, 2, 1], 10, true);
-  // });
+  cups = game.add.group();
+  cups.enableBody = true;
+  cups.createMultiple(10, 'cup');
+  cups.setAll('collideWorldBounds', true);
+  cups.setAll('body.gravity.y', 950);
+  cups.forEach(function(cup) {
+    game.physics.enable(cup, Phaser.Physics.ARCADE);
+    cup.anchor.set(0.5, 0.5);
+    cup.body.setSize(52, 63);
+    cup.body.gravity.y = 950;
+    cup.animations.add('left', [0, 1, 2, 3], 10, true);
+    cup.animations.add('right', [0, 3, 2, 1], 10, true);
+  });
 
-  // cups.forEach(function(cup) {
-  //   cup.reset(cupPosition[counter], 300);
-  //   counter++;
-  // }, this);
+  cups.forEach(function(cup) {
+    cup.reset(cupPosition[counter], 90);
+    counter++;
+  }, this);
 
-  // //cans
+  //cans
 
-  // var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
-  // var counter = 0;
+  var coffeecanPosition = [597, 3437, 4000, 4531, 6287, 6743];
+  var counter = 0;
 
-  // coffeecans = game.add.group();
-  // coffeecans.enableBody = true;
-  // coffeecans.createMultiple(13, 'coffeecan');
-  // coffeecans.setAll('collideWorldBounds', true);
-  // coffeecans.forEach(function(coffeecan) {
-  //   game.physics.enable(coffeecan, Phaser.Physics.ARCADE);
-  //   coffeecan.body.gravity.y = 950;
-  //   coffeecan.anchor.set(0.5, 0.5);
-  //   coffeecan.body.setSize(41, 48);
-  // });
+  coffeecans = game.add.group();
+  coffeecans.enableBody = true;
+  coffeecans.createMultiple(7, 'coffeecan');
+  coffeecans.forEach(function(coffeecan) {
+    game.physics.enable(coffeecan, Phaser.Physics.ARCADE);
+    coffeecan.body.gravity.y = 950;
+    coffeecan.anchor.set(0.5, 0.5);
+    coffeecan.body.setSize(41, 48);
+  });
 
-  // coffeecans.forEach(function(coffeecan) {
-  //   coffeecan.reset(coffeecanPosition[counter], 300);
-  //   counter++;
-  // }, this);
+  coffeecans.forEach(function(coffeecan) {
+    coffeecan.reset(coffeecanPosition[counter], 300);
+    counter++;
+  }, this);
 
 
   //bowties
@@ -130,16 +129,17 @@ function create() {
 function update() {
 
     game.physics.arcade.collide(player, platformLayer);
-    game.physics.arcade.collide(cups, layer);
-    game.physics.arcade.collide(coffeecans, layer);
+    game.physics.arcade.collide(cups, platformLayer);
+    game.physics.arcade.collide(coffeecans, platformLayer);
     game.physics.arcade.collide(player, cups);
     game.physics.arcade.collide(player, coffeecans);
-    game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
+    game.physics.arcade.overlap(bowties, platformLayer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
 
     player.body.velocity.x = 0;
 
+    /* actual movement */
     if (cursors.left.isDown) {
       player.body.velocity.x = -250;
       player.animations.play('left');
@@ -150,15 +150,34 @@ function update() {
       player.frame = 0;
     }
 
-    if(player.body.y >= 750) {
-      player.body.y = -50;
-      player.body.x = player.body.x + 1;
-    }
-
-    if (player.body.onFloor() && game.time.now > jumpTimer) {
-        player.body.velocity.y = -350;
+    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+        player.body.velocity.y = -250;
         jumpTimer = game.time.now + 750;
     }
+
+    /* flying movement */
+    // if (cursors.left.isDown) {
+    //   player.body.velocity.x = -750;
+    //   player.animations.play('left');
+    // } else if (cursors.right.isDown) {
+    //   player.body.velocity.x = 750;
+    //   player.animations.play('right');
+    // } else {
+    //   player.frame = 0;
+    //   player.body.velocity.x = 0;
+    // }
+
+    // if(cursors.up.isDown) {
+    //   player.body.velocity.y = -250;
+    // } else if(cursors.down.isDown) {
+    //   player.body.velocity.y = 250;
+    // } else {
+    //   player.body.velocity.y = 0;
+    // }
+    // if (player.body.onFloor() && game.time.now > jumpTimer) {
+    //     player.body.velocity.y = -350;
+    //     jumpTimer = game.time.now + 750;
+    // }
 
     if(game.camera.x !== game.cameraLastX){
       game.bg.x -= 0.2 * (game.cameraLastX - game.camera.x);
@@ -170,26 +189,30 @@ function update() {
       game.cameraLastY = game.camera.y;
     }
 
+
     if(player.body.velocity.x >= 0) {
       facing = 'right';
     } else {
       facing = 'left';
     }
 
-    //cups
-    // cups.forEachAlive(function(cup) {
-    //   if(cup.body.onFloor()) {
-    //     cup.body.velocity.y = -350;
-    //     cup.animations.play('left');
-    //   }
-    // });
+    // cups
+    cups.forEachAlive(function(cup) {
+      if(cup.body.onFloor()) {
+        cup.body.velocity.y = -350;
+        cup.animations.play('left');
+      }
+      if(cup.body.y >= 655) {
+        cup.kill();
+      }
+    });
 
-    // //coffeecans
-    // coffeecans.forEachAlive(function(can){
-    //   can.body.velocity.x = 0;
-    //   can.body.velocity.x = cupPath[cupIndex];
-    // });
-    // cupIndex = cupIndex + 1 >= cupPath.length ? 0 : cupIndex + 1;
+    //coffeecans
+    coffeecans.forEachAlive(function(can){
+      can.body.velocity.x = 0;
+      can.body.velocity.x = cupPath[cupIndex];
+    });
+    cupIndex = cupIndex + 1 >= cupPath.length ? 0 : cupIndex + 1;
 
     //bowties
     bowties.forEachAlive(function(bowtie){

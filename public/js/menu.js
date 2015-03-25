@@ -9,6 +9,7 @@
     game.load.tilemap('background2', './assets/stage2.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
     game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
+    game.load.spritesheet('jwb', './assets/johnwilkesbooth.png', 128, 137, 2);
     game.load.image('treeBG', './assets/trees3.jpg');
     game.load.image('start', './assets/button.png');
     game.load.image('menu', './assets/menu.png');
@@ -19,6 +20,7 @@
     game.load.image('bowtie', './assets/bowtie.png');
     game.load.image('bean', './assets/coffeebean.png');
     game.load.image('coffeecan', './assets/coffeecan.png');
+    game.load.image('record', './assets/record.png');
     game.load.audio('shoot', './assets/Pecheew.m4a');
     game.load.audio('explosion', './assets/Explosion.m4a');
     game.load.audio('jump', './assets/Whoop.m4a');
