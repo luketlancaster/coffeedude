@@ -6,12 +6,15 @@
 
   function preload() {
     game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('background2', './assets/stage2.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
     game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
+    game.load.image('treeBG', './assets/trees3.jpg')
     game.load.image('start', './assets/button.png');
     game.load.image('menu', './assets/menu.png');
     game.load.image('blocks', './assets/blocks.png');
     game.load.image('steampunk', './assets/steampunkish-tilec.png');
+    game.load.image('rpg', './assets/dngcrl.png');
     game.load.image('bookshelf', './assets/bookshelf.jpg');
     game.load.image('bowtie', './assets/bowtie.png');
     game.load.image('coffeecan', './assets/coffeecan.png');
