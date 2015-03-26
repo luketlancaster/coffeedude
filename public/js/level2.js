@@ -4,6 +4,7 @@ game.state.add('lvl2', {create:create, update:update});
 var jumpTimer = 0,
     map,
     layer,
+    platformLayer,
     cups,
     cup,
     coffeecans,
@@ -27,7 +28,7 @@ var jumpTimer = 0,
     jumpSound,
     explosionSound,
     player,
-    hat,
+    banner,
     cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
 
@@ -56,7 +57,7 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(70, 0, 'head');
+  player = game.add.sprite(6400, 0, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = false;
   player.body.setSize(36, 56, 14, -8);
@@ -70,30 +71,30 @@ function create() {
 
   //collectables
 
-  var recordPosition = [],
-      recordCounter = 0;
+  // var recordPosition = [],
+  //     recordCounter = 0;
 
-  records = game.add.group();
-  records.enableBody = true;
-  records.createMultiple(19, 'record');
-  records.forEach(function(record){
-    game.physics.enable(record, Phaser.Physics.ARCADE);
-    record.anchor.set(0.5, 0.5);
-    record.body.gravity.y = 750;
-    record.body.bounce = 0.8;
-  });
+  // records = game.add.group();
+  // records.enableBody = true;
+  // records.createMultiple(19, 'record');
+  // records.forEach(function(record){
+  //   game.physics.enable(record, Phaser.Physics.ARCADE);
+  //   record.anchor.set(0.5, 0.5);
+  //   record.body.gravity.y = 750;
+  //   record.body.bounce = 0.8;
+  // });
 
-  records.forEach(function(record){
-    record.reset(recordPosition[recordCounter], 400);
-    recordCounter++;
-  }, this);
+  // records.forEach(function(record){
+  //   record.reset(recordPosition[recordCounter], 400);
+  //   recordCounter++;
+  // }, this);
 
   //hat
 
-  hat = game.add.sprite(6932, 50, 'hat');
-  game.physics.enable(hat, Phaser.Physics.ARCADE);
-  hat.body.collideWorldBounds = true;
-  hat.body.gravity.y = 950;
+  banner = game.add.sprite(6982, 70, 'banner');
+  game.physics.enable(banner, Phaser.Physics.ARCADE);
+  banner.body.collideWorldBounds = true;
+  banner.animations.add('marquee', [0, 1, 2], 10, true);
 
   //enemies
 
@@ -163,24 +164,25 @@ function create() {
 
 function update() {
 
-    game.physics.arcade.collide(player, layer);
-    game.physics.arcade.collide(hat, layer);
-    game.physics.arcade.collide(records, layer);
-    game.physics.arcade.collide(cups, layer);
-    game.physics.arcade.collide(coffeecans, layer);
+    game.physics.arcade.collide(player, platformLayer);
+    game.physics.arcade.collide(banner, platformLayer);
+    game.physics.arcade.collide(records, platformLayer);
+    game.physics.arcade.collide(cups, platformLayer);
+    game.physics.arcade.collide(coffeecans, platformLayer);
     game.physics.arcade.overlap(player, records, collectRecords, null, this);
-    game.physics.arcade.overlap(player, hat, collectHat, null, this);
-    game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
+    game.physics.arcade.overlap(player, banner, collectHat, null, this);
+    game.physics.arcade.overlap(bowties, platformLayer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
     game.physics.arcade.overlap(bowties, beans, collisionHandler, null, this);
-    game.physics.arcade.overlap(beans, layer, killBowtie, null, this);
+    game.physics.arcade.overlap(beans, platformLayer, killBowtie, null, this);
     game.physics.arcade.overlap(beans, cups, collisionHandler, null, this);
     game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
     game.physics.arcade.overlap(player, coffeecans, playerDeathHandler, null, this);
     game.physics.arcade.overlap(player, cups, playerDeathHandler, null, this);
 
     player.body.velocity.x = 0;
+    banner.animations.play('marquee');
 
     /* actual movement */
     if (cursors.left.isDown) {
@@ -335,7 +337,7 @@ function collectRecords (player, record) {
 function collectHat (player, hat) {
   player.destroy();
   game.world.setBounds(0, 0, 0, 0);
-  game.state.start('lvl2');
+  game.state.start('boss');
 }
 
 function playerDeathHandler (player, enemy) {
