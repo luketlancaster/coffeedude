@@ -7,9 +7,11 @@
   function preload() {
     game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.tilemap('background2', './assets/stage2.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('bossfight', './assets/bossfight.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
     game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
     game.load.spritesheet('jwb', './assets/johnwilkesbooth.png', 128, 137, 2);
+    game.load.image('bossBG', './assets/theatre.jpg');
     game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
     game.load.image('menu', './assets/menu.png');
@@ -44,7 +46,7 @@
   }
 
   function startLvl2(){
-    game.state.start('lvl2');
+    game.state.start('boss');
   }
 
 

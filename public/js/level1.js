@@ -184,40 +184,40 @@ function update() {
 
 
     /* actual movement */
-    // if (cursors.left.isDown) {
-    //   player.body.velocity.x = -250;
-    //   player.animations.play('left');
-    // } else if (cursors.right.isDown) {
-    //   player.body.velocity.x = 250;
-    //   player.animations.play('right');
-    // } else {
-    //   player.frame = 0;
-    // }
-
-    // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-    //     player.body.velocity.y = -250;
-    //     jumpTimer = game.time.now + 750;
-    // }
-
-    /* flying movement */
     if (cursors.left.isDown) {
-      player.body.velocity.x = -750;
+      player.body.velocity.x = -250;
       player.animations.play('left');
     } else if (cursors.right.isDown) {
-      player.body.velocity.x = 750;
+      player.body.velocity.x = 250;
       player.animations.play('right');
     } else {
       player.frame = 0;
-      player.body.velocity.x = 0;
     }
 
-    if(cursors.up.isDown) {
-      player.body.velocity.y = -750;
-    } else if(cursors.down.isDown) {
-      player.body.velocity.y = 750;
-    } else {
-      player.body.velocity.y = 0;
+    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+        player.body.velocity.y = -250;
+        jumpTimer = game.time.now + 750;
     }
+
+    /* flying movement */
+    // if (cursors.left.isDown) {
+    //   player.body.velocity.x = -750;
+    //   player.animations.play('left');
+    // } else if (cursors.right.isDown) {
+    //   player.body.velocity.x = 750;
+    //   player.animations.play('right');
+    // } else {
+    //   player.frame = 0;
+    //   player.body.velocity.x = 0;
+    // }
+
+    // if(cursors.up.isDown) {
+    //   player.body.velocity.y = -750;
+    // } else if(cursors.down.isDown) {
+    //   player.body.velocity.y = 750;
+    // } else {
+    //   player.body.velocity.y = 0;
+    // }
 
     if(game.camera.x !== game.cameraLastX){
       game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
@@ -237,7 +237,7 @@ function update() {
         cup.animations.play('left');
       }
 
-      if(cup.body.x - player.body.x <= 200) {
+      if(cup.body.x - player.body.x <= 300) {
         cupFire(cup);
       }
     });
@@ -298,7 +298,7 @@ function cupFire (cup) {
     if (bean) {
       bean.anchor.setTo(0.5, 0.5);
       bean.reset(cup.body.x - 30, cup.body.y);
-      cupTime = game.time.now + 2000;
+      cupTime = game.time.now + 200;
       game.physics.arcade.moveToObject(bean, player, 140);
     }
   }
