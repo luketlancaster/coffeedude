@@ -21,6 +21,7 @@
     game.load.image('bean', './assets/coffeebean.png');
     game.load.image('coffeecan', './assets/coffeecan.png');
     game.load.image('record', './assets/record.png');
+    game.load.image('hat', './assets/tophat.png');
     game.load.audio('shoot', './assets/Pecheew.m4a');
     game.load.audio('explosion', './assets/Explosion.m4a');
     game.load.audio('jump', './assets/Whoop.m4a');

@@ -4,18 +4,15 @@ game.state.add('lvl1', {create:create, update:update});
 var jumpTimer = 0,
     map,
     layer,
-    blockedLayer,
     cups,
     cup,
     coffeecans,
     coffeecan,
     cursors,
     bowties,
-    music,
     facing = 'right',
     bowtie,
     bowTime = 0,
-    boss,
     cupTime = 0,
     beans,
     bean,
@@ -26,25 +23,21 @@ var jumpTimer = 0,
     score = 0,
     scoreText,
     fireButton,
-    fireKey,
     shotSound,
     jumpSound,
     explosionSound,
-    scream,
     player,
-    jwb,
+    hat,
     cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
-  fireKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
   cupIndex = 0;
 
   //sounds
   explosionSound = game.add.audio('explosion');
   shotSound = game.add.audio('shoot');
-  scream = game.add.audio('scream');
   game.world.setBounds(0, 0, 800, 640);
 
   game.bg = game.add.tileSprite(0, 0, 7040, 640, 'bookshelf');
@@ -59,14 +52,13 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(70, 500, 'head');
+  player = game.add.sprite(12, 520, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = true;
   player.body.setSize(25, 50, 19, 0);
   player.body.gravity.y = 450;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
-  player.animations.add('damage', [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2], 60, true);
 
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -74,8 +66,8 @@ function create() {
 
   //collectables
 
-  var recordPosition = [138, 419, 690, 1340, 1472, 1957, 2064, 2800, 3065, 3582, 3919, 4202, 4538, 4868, 5109, 6022, 6479, 6766];
-  var recordCounter = 0;
+  var recordPosition = [138, 419, 690, 1340, 1472, 1957, 2064, 2800, 3065, 3582, 3919, 4202, 4538, 4868, 5109, 6022, 6479, 6766],
+      recordCounter = 0;
 
   records = game.add.group();
   records.enableBody = true;
@@ -83,14 +75,21 @@ function create() {
   records.forEach(function(record){
     game.physics.enable(record, Phaser.Physics.ARCADE);
     record.anchor.set(0.5, 0.5);
-    record.body.gravity.y = 950;
-    record.body.bounce = 0.5;
+    record.body.gravity.y = 750;
+    record.body.bounce = 0.8;
   });
 
   records.forEach(function(record){
     record.reset(recordPosition[recordCounter], 400);
     recordCounter++;
   }, this);
+
+  //hat
+
+  hat = game.add.sprite(6798, 420, 'hat');
+  game.physics.enable(hat, Phaser.Physics.ARCADE);
+  hat.body.collideWorldBounds = true;
+  hat.body.gravity.y = 950;
 
 
   //enemies
@@ -165,10 +164,12 @@ function create() {
 function update() {
 
     game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(hat, layer);
     game.physics.arcade.collide(records, layer);
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(coffeecans, layer);
     game.physics.arcade.overlap(player, records, collectRecords, null, this);
+    game.physics.arcade.overlap(player, hat, collectHat, null, this);
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
@@ -183,50 +184,45 @@ function update() {
 
 
     /* actual movement */
-    if (cursors.left.isDown) {
-      player.body.velocity.x = -250;
-      player.animations.play('left');
-    } else if (cursors.right.isDown) {
-      player.body.velocity.x = 250;
-      player.animations.play('right');
-    } else {
-      player.frame = 0;
-    }
-
-    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-        player.body.velocity.y = -250;
-        jumpTimer = game.time.now + 750;
-    }
-
-    /* flying movement */
     // if (cursors.left.isDown) {
-    //   player.body.velocity.x = -750;
+    //   player.body.velocity.x = -250;
     //   player.animations.play('left');
     // } else if (cursors.right.isDown) {
-    //   player.body.velocity.x = 750;
+    //   player.body.velocity.x = 250;
     //   player.animations.play('right');
     // } else {
     //   player.frame = 0;
-    //   player.body.velocity.x = 0;
     // }
 
-    // if(cursors.up.isDown) {
-    //   player.body.velocity.y = -250;
-    // } else if(cursors.down.isDown) {
-    //   player.body.velocity.y = 250;
-    // } else {
-    //   player.body.velocity.y = 0;
+    // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+    //     player.body.velocity.y = -250;
+    //     jumpTimer = game.time.now + 750;
     // }
 
-    // if(game.camera.x !== game.cameraLastX){
-    //   game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
-    //   game.cameraLastX = game.camera.x;
-    // }
+    /* flying movement */
+    if (cursors.left.isDown) {
+      player.body.velocity.x = -750;
+      player.animations.play('left');
+    } else if (cursors.right.isDown) {
+      player.body.velocity.x = 750;
+      player.animations.play('right');
+    } else {
+      player.frame = 0;
+      player.body.velocity.x = 0;
+    }
 
-    // if(game.camera.y !== game.cameraLastY){
-    //   game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
-    //   game.cameraLastY = game.camera.y;
-    // }
+    if(cursors.up.isDown) {
+      player.body.velocity.y = -750;
+    } else if(cursors.down.isDown) {
+      player.body.velocity.y = 750;
+    } else {
+      player.body.velocity.y = 0;
+    }
+
+    if(game.camera.x !== game.cameraLastX){
+      game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+      game.cameraLastX = game.camera.x;
+    }
 
     if(player.body.velocity.x >= 0) {
       facing = 'right';
@@ -326,6 +322,12 @@ function collectRecords (player, record) {
   record.kill();
   score += 1;
   scoreText.text = 'Local Artists\' Vinyl: ' + score;
+}
+
+function collectHat (player, hat) {
+  player.destroy();
+  game.world.setBounds(0, 0, 0, 0);
+  game.state.start('lvl2');
 }
 
 function playerDeathHandler (player, enemy) {
