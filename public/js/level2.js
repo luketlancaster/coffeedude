@@ -95,6 +95,7 @@ function create() {
   game.physics.enable(banner, Phaser.Physics.ARCADE);
   banner.body.collideWorldBounds = true;
   banner.animations.add('marquee', [0, 1, 2], 10, true);
+  banner.scale.set(2, 2);
 
   //enemies
 

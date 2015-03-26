@@ -18,6 +18,7 @@ var jumpTimer = 0,
     explosionSound,
     jwb,
     jwbBounceCount = 0,
+    text,
     player;
 
 function create() {
@@ -69,6 +70,11 @@ function create() {
 
   healthText = game.add.text(660, 20, 'Health: 3', { fontSize: '32px', fill: '#FFF'});
   healthText.fixedToCamera = true;
+
+  var style = { font: "32px Arial", fill: "#fff", wordWrap: true, wordWrapWidth: jwb.width, align: "center" };
+
+  text = game.add.text(0, 0, "You'll Never Get Me, Abe!", style);
+  text.anchor.set(0.5);
 }
 
 function update() {
@@ -83,40 +89,40 @@ function update() {
   jwb.animations.play('mad');
 
   /* actual movement */
-  // if (cursors.left.isDown) {
-  //   player.body.velocity.x = -250;
-  //   player.animations.play('left');
-  // } else if (cursors.right.isDown) {
-  //   player.body.velocity.x = 250;
-  //   player.animations.play('right');
-  // } else {
-  //   player.frame = 0;
-  // }
-
-  // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-  //     player.body.velocity.y = -350;
-  //     jumpTimer = game.time.now + 750;
-  // }
-
-  /* flying movement */
   if (cursors.left.isDown) {
-    player.body.velocity.x = -750;
+    player.body.velocity.x = -250;
     player.animations.play('left');
   } else if (cursors.right.isDown) {
-    player.body.velocity.x = 750;
+    player.body.velocity.x = 250;
     player.animations.play('right');
   } else {
     player.frame = 0;
-    player.body.velocity.x = 0;
   }
 
-  if(cursors.up.isDown) {
-    player.body.velocity.y = -750;
-  } else if(cursors.down.isDown) {
-    player.body.velocity.y = 750;
-  } else {
-    player.body.velocity.y = 0;
+  if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+      player.body.velocity.y = -350;
+      jumpTimer = game.time.now + 750;
   }
+
+  /* flying movement */
+  // if (cursors.left.isDown) {
+  //   player.body.velocity.x = -750;
+  //   player.animations.play('left');
+  // } else if (cursors.right.isDown) {
+  //   player.body.velocity.x = 750;
+  //   player.animations.play('right');
+  // } else {
+  //   player.frame = 0;
+  //   player.body.velocity.x = 0;
+  // }
+
+  // if(cursors.up.isDown) {
+  //   player.body.velocity.y = -750;
+  // } else if(cursors.down.isDown) {
+  //   player.body.velocity.y = 750;
+  // } else {
+  //   player.body.velocity.y = 0;
+  // }
 
   //bowties
   bowties.forEachAlive(function(bowtie){
@@ -137,6 +143,11 @@ function update() {
   }
 
   //jwb
+
+  if(jwbBounceCount === 2) {
+    text.destroy();
+  }
+
   if(jwb.body.blocked.down) {
     jwb.body.velocity.y = -200;
     jwbBounceCount++;
@@ -165,6 +176,9 @@ function update() {
     jwb.body.velocity.x = 0;
     jwbBounceCount = 0;
   }
+
+  text.x = Math.floor(jwb.x + jwb.width / 2) - 100;
+  text.y = Math.floor(jwb.y + jwb.height / 2);
 }
 
 function fireBowtie() {
@@ -173,7 +187,7 @@ function fireBowtie() {
 
         if (bowtie) {
             bowtie.reset(player.x - 30, player.y - 10);
-            bowtie.body.velocity.x = 700;
+            bowtie.body.velocity.x = 500;
             bowTime = game.time.now + 350;
             shotSound.play();
         }
@@ -182,7 +196,7 @@ function fireBowtie() {
 
         if (bowtie) {
             bowtie.reset(player.x - 30, player.y - 10);
-            bowtie.body.velocity.x = -700;
+            bowtie.body.velocity.x = -500;
             bowTime = game.time.now + 750;
             shotSound.play();
         }
