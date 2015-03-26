@@ -10,7 +10,7 @@
     game.load.spritesheet('cup', './assets/buxscupsheet.png', 64, 64, 4);
     game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
     game.load.spritesheet('jwb', './assets/johnwilkesbooth.png', 128, 137, 2);
-    game.load.image('treeBG', './assets/trees3.jpg');
+    game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
     game.load.image('menu', './assets/menu.png');
     game.load.image('blocks', './assets/blocks.png');

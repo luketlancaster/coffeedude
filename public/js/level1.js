@@ -2,7 +2,6 @@
 game.state.add('lvl1', {create:create, update:update});
 
 var jumpTimer = 0,
-    hitCount = 0,
     map,
     layer,
     blockedLayer,
@@ -22,6 +21,10 @@ var jumpTimer = 0,
     bean,
     records,
     record,
+    healthText,
+    hitCount = 3,
+    score = 0,
+    scoreText,
     fireButton,
     fireKey,
     shotSound,
@@ -29,6 +32,7 @@ var jumpTimer = 0,
     explosionSound,
     scream,
     player,
+    jwb,
     cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
 
@@ -62,6 +66,7 @@ function create() {
   player.body.gravity.y = 450;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
+  player.animations.add('damage', [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2], 60, true);
 
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -150,6 +155,11 @@ function create() {
   game.cameraLastX = game.camera.x;
   game.cameraLastY = game.camera.y;
 
+  scoreText = game.add.text(20, 20, 'Local Artists\' Vinyl: 0', { fontSize: '32px', fill: '#FFF', align: 'center' });
+  scoreText.fixedToCamera = true;
+
+  healthText = game.add.text(660, 20, 'Health: 3', { fontSize: '32px', fill: '#FFF'});
+  healthText.fixedToCamera = true;
 }
 
 function update() {
@@ -158,9 +168,11 @@ function update() {
     game.physics.arcade.collide(records, layer);
     game.physics.arcade.collide(cups, layer);
     game.physics.arcade.collide(coffeecans, layer);
+    game.physics.arcade.overlap(player, records, collectRecords, null, this);
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
     game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
+    game.physics.arcade.overlap(bowties, beans, collisionHandler, null, this);
     game.physics.arcade.overlap(beans, layer, killBowtie, null, this);
     game.physics.arcade.overlap(beans, cups, collisionHandler, null, this);
     game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
@@ -206,10 +218,10 @@ function update() {
     //   player.body.velocity.y = 0;
     // }
 
-    if(game.camera.x !== game.cameraLastX){
-      game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
-      game.cameraLastX = game.camera.x;
-    }
+    // if(game.camera.x !== game.cameraLastX){
+    //   game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+    //   game.cameraLastX = game.camera.x;
+    // }
 
     // if(game.camera.y !== game.cameraLastY){
     //   game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
@@ -305,24 +317,33 @@ function killBowtie(bowtie, layer) {
 }
 
 function collisionHandler (bowtie, cup) {
-    explosionSound.play();
-    bowtie.kill();
-    cup.kill();
+  explosionSound.play();
+  bowtie.kill();
+  cup.kill();
+}
+
+function collectRecords (player, record) {
+  record.kill();
+  score += 1;
+  scoreText.text = 'Local Artists\' Vinyl: ' + score;
 }
 
 function playerDeathHandler (player, enemy) {
-    explosionSound.play();
-    //player.body.x = 75;
-    ++hitCount;
-    if(hitCount === 3) {
-      alert('game over!');
-    }
+  player.animations.play('damage');
+  explosionSound.play();
+  enemy.body.x = -200000;
+  player.body.x -= 75;
+  --hitCount;
+  healthText.text = 'Health: ' + hitCount;
+  if(hitCount === 0) {
+    alert('game over!');
+  }
 }
 
 function cupHandler (bowtie, cup) {
-    explosionSound.play();
-    bowtie.kill();
-    cup.kill();
+  explosionSound.play();
+  bowtie.kill();
+  cup.kill();
 }
 
 function render() {

@@ -56,7 +56,7 @@ function create() {
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = false;
   player.body.setSize(36, 56, 14, -8);
-  //player.body.gravity.y = 600;
+  player.body.gravity.y = 400;
   player.animations.add('left', [2]);
   player.animations.add('right', [1]);
 
@@ -151,7 +151,7 @@ function update() {
     }
 
     if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-        player.body.velocity.y = -250;
+        player.body.velocity.y = -275;
         jumpTimer = game.time.now + 750;
     }
 
@@ -187,6 +187,10 @@ function update() {
     if(game.camera.y !== game.cameraLastY){
       game.bg.y -= 0.2 * (game.cameraLastY - game.camera.y);
       game.cameraLastY = game.camera.y;
+    }
+
+    if(player.body.y >= 700) {
+      player.body.y = 0;
     }
 
 
