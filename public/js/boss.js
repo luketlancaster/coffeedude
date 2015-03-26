@@ -17,6 +17,7 @@ var jumpTimer = 0,
     shotSound,
     explosionSound,
     jwb,
+    jwbBounceCount = 0,
     player;
 
 function create() {
@@ -53,8 +54,9 @@ function create() {
 
   //jwb
   jwb = game.add.sprite(640, 200, 'jwb');
+  game.physics.enable(jwb, Phaser.Physics.ARCADE);
   jwb.animations.add('mad', [0, 1], 10, true);
-  jwb.fixedToCamera = true;
+  jwb.body.velocity.y = 200;
 
   //bowties
   bowties = game.add.group();
@@ -71,66 +73,98 @@ function create() {
 
 function update() {
 
-    game.physics.arcade.collide(player, layer);
-    game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
+  game.physics.arcade.collide(player, layer);
+  game.physics.arcade.collide(jwb, layer);
+  game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
+  game.physics.arcade.overlap(bowties, jwb, resetBowtie, null, this);
 
+  player.body.velocity.x = 0;
+
+  jwb.animations.play('mad');
+
+  /* actual movement */
+  // if (cursors.left.isDown) {
+  //   player.body.velocity.x = -250;
+  //   player.animations.play('left');
+  // } else if (cursors.right.isDown) {
+  //   player.body.velocity.x = 250;
+  //   player.animations.play('right');
+  // } else {
+  //   player.frame = 0;
+  // }
+
+  // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+  //     player.body.velocity.y = -350;
+  //     jumpTimer = game.time.now + 750;
+  // }
+
+  /* flying movement */
+  if (cursors.left.isDown) {
+    player.body.velocity.x = -750;
+    player.animations.play('left');
+  } else if (cursors.right.isDown) {
+    player.body.velocity.x = 750;
+    player.animations.play('right');
+  } else {
+    player.frame = 0;
     player.body.velocity.x = 0;
+  }
 
-    jwb.animations.play('mad');
+  if(cursors.up.isDown) {
+    player.body.velocity.y = -750;
+  } else if(cursors.down.isDown) {
+    player.body.velocity.y = 750;
+  } else {
+    player.body.velocity.y = 0;
+  }
 
-    /* actual movement */
-    if (cursors.left.isDown) {
-      player.body.velocity.x = -250;
-      player.animations.play('left');
-    } else if (cursors.right.isDown) {
-      player.body.velocity.x = 250;
-      player.animations.play('right');
-    } else {
-      player.frame = 0;
+  //bowties
+  bowties.forEachAlive(function(bowtie){
+    var distanceFromPlayer = 600;
+    if(Math.abs(player.x - bowtie.x) >= distanceFromPlayer) {
+      bowtie.kill();
     }
+  }, this);
 
-    if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-        player.body.velocity.y = -350;
-        jumpTimer = game.time.now + 750;
-    }
+  if(fireButton.isDown) {
+    fireBowtie();
+  }
 
-    /* flying movement */
-    // if (cursors.left.isDown) {
-    //   player.body.velocity.x = -750;
-    //   player.animations.play('left');
-    // } else if (cursors.right.isDown) {
-    //   player.body.velocity.x = 750;
-    //   player.animations.play('right');
-    // } else {
-    //   player.frame = 0;
-    //   player.body.velocity.x = 0;
-    // }
+  if(player.body.velocity.x >= 0) {
+    facing = 'right';
+  } else {
+    facing = 'left';
+  }
 
-    // if(cursors.up.isDown) {
-    //   player.body.velocity.y = -750;
-    // } else if(cursors.down.isDown) {
-    //   player.body.velocity.y = 750;
-    // } else {
-    //   player.body.velocity.y = 0;
-    // }
+  //jwb
+  if(jwb.body.blocked.down) {
+    jwb.body.velocity.y = -200;
+    jwbBounceCount++;
+  }
 
-    //bowties
-    bowties.forEachAlive(function(bowtie){
-      var distanceFromPlayer = 600;
-      if(Math.abs(player.x - bowtie.x) >= distanceFromPlayer) {
-        bowtie.kill();
-      }
-    }, this);
+  if(jwb.body.blocked.up) {
+    jwb.body.velocity.y = 200;
+    jwbBounceCount++;
+  }
 
-    if(fireButton.isDown) {
-      fireBowtie();
-    }
+  if(jwb.body.blocked.left) {
+    jwb.body.velocity.x = 200;
+    jwbBounceCount++;
+  }
+  if(jwb.body.blocked.right) {
+    jwb.body.velocity.x = -200;
+    jwbBounceCount++;
+  }
 
-    if(player.body.velocity.x >= 0) {
-      facing = 'right';
-    } else {
-      facing = 'left';
-    }
+  if(jwbBounceCount === 4) {
+    jwb.body.velocity.y = 200;
+    jwb.body.velocity.x = -200;
+  }
+
+  if(jwbBounceCount === 20) {
+    jwb.body.velocity.x = 0;
+    jwbBounceCount = 0;
+  }
 }
 
 function fireBowtie() {
@@ -155,8 +189,10 @@ function fireBowtie() {
   }
 }
 
-function resetBowtie(bowtie) {
+function resetBowtie(jwb, bowtie) {
   bowtie.kill();
+  jwb.body.velocity.x *= 3;
+  jwb.body.velocity.y *= 3;
 }
 
 function killBowtie(bowtie, layer) {
@@ -182,9 +218,6 @@ function playerDeathHandler (player, enemy) {
 }
 
 function render() {
-  game.debug.body(beans.children[0]);
+  game.debug.body(jwb);
   game.debug.body(player);
-  cups.forEachAlive(function(cup){
-    game.debug.body(cup);
-  });
 }
