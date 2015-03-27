@@ -12,6 +12,7 @@
     game.load.spritesheet('head', './assets/headsheet.png', 64, 64, 3);
     game.load.spritesheet('jwb', './assets/johnwilkesbooth.png', 128, 137, 2);
     game.load.spritesheet('banner', './assets/theatrebanner.png', 48, 21, 3);
+    game.load.image('bullet', './assets/bullet.png');
     game.load.image('bossBG', './assets/theatre.jpg');
     game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
@@ -47,7 +48,7 @@
   }
 
   function startLvl2(){
-    game.state.start('lvl2');
+    game.state.start('boss');
   }
 
 

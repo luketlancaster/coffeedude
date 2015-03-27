@@ -18,6 +18,9 @@ var jumpTimer = 0,
     explosionSound,
     jwb,
     jwbBounceCount = 0,
+    bullets,
+    bullet,
+    bulletTime = 0,
     text,
     player;
 
@@ -59,6 +62,12 @@ function create() {
   jwb.animations.add('mad', [0, 1], 10, true);
   jwb.body.velocity.y = 200;
 
+  //bullets
+  bullets = game.add.group();
+  bullets.enableBody = true;
+  bullets.createMultiple(5, 'bullet');
+  bullets.setAll('body.setSize', 31, 15);
+
   //bowties
   bowties = game.add.group();
   bowties.enableBody = true;
@@ -81,6 +90,7 @@ function update() {
 
   game.physics.arcade.collide(player, layer);
   game.physics.arcade.collide(jwb, layer);
+  game.physics.arcade.collide(bullets, layer, collisionHandler, null, this);
   game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
   game.physics.arcade.overlap(bowties, jwb, resetBowtie, null, this);
 
@@ -177,29 +187,58 @@ function update() {
     jwbBounceCount = 0;
   }
 
+  if (game.time.now > bulletTime) {
+    bullet = bullets.getFirstExists(false);
+    if(bullet) {
+      bullet.reset(jwb.x, jwb.y);
+      bullet.body.velocity.x = -500;
+      bulletTime = game.time.now + 800;
+      game.physics.arcade.moveToObject(bullet, player, 500);
+    }
+  }
+
+  // bullets.forEachAlive(function(bullet){
+  //   game.physics.arcade.moveToObject(bullet, player, 500);
+  //   var distanceFromJWB = 600;
+  //   if(Math.abs(jwb.x - bullet.x) >= distanceFromJWB) {
+  //    bullet.kill();
+  //   }
+  // }, this);
+
   text.x = Math.floor(jwb.x + jwb.width / 2) - 100;
   text.y = Math.floor(jwb.y + jwb.height / 2);
 }
 
 function fireBowtie() {
-   if (game.time.now > bowTime  && facing === 'right') {
-        bowtie = bowties.getFirstExists(false);
+ if (game.time.now > bowTime  && facing === 'right') {
+  bowtie = bowties.getFirstExists(false);
+  if (bowtie) {
+    bowtie.reset(player.x - 30, player.y - 10);
+    bowtie.body.velocity.x = 500;
+    bowTime = game.time.now + 350;
+    shotSound.play();
+  }
 
-        if (bowtie) {
-            bowtie.reset(player.x - 30, player.y - 10);
-            bowtie.body.velocity.x = 500;
-            bowTime = game.time.now + 350;
-            shotSound.play();
-        }
-    } else if (game.time.now > bowTime && facing === 'left') {
-        bowtie = bowties.getFirstExists(false);
+  } else if (game.time.now > bowTime && facing === 'left') {
+      bowtie = bowties.getFirstExists(false);
 
-        if (bowtie) {
-            bowtie.reset(player.x - 30, player.y - 10);
-            bowtie.body.velocity.x = -500;
-            bowTime = game.time.now + 750;
-            shotSound.play();
-        }
+    if (bowtie) {
+      bowtie.reset(player.x - 30, player.y - 10);
+      bowtie.body.velocity.x = -500;
+      bowTime = game.time.now + 750;
+      shotSound.play();
+    }
+  }
+}
+
+function fireBullet() {
+  if (game.time.now > bulletTime) {
+    if(bullet) {
+      bullet.reset(jwb.x, jwb.y);
+      bullet.velocity.x = -800;
+      bulletTime = game.time.now + 500;
+
+    }
   }
 }
 
@@ -213,10 +252,8 @@ function killBowtie(bowtie, layer) {
   bowtie.kill();
 }
 
-function collisionHandler (bowtie, cup) {
-  explosionSound.play();
-  bowtie.kill();
-  cup.kill();
+function collisionHandler (bullet, layer) {
+  bullet.kill();
 }
 
 function playerDeathHandler (player, enemy) {
