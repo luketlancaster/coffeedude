@@ -16,7 +16,7 @@
     game.load.image('bossBG', './assets/theatre.jpg');
     game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
-    game.load.image('menu', './assets/menu.png');
+    game.load.image('menu', './assets/startmenu.png');
     game.load.image('blocks', './assets/blocks.png');
     game.load.image('steampunk', './assets/steampunkish-tilec.png');
     game.load.image('trees2', './assets/trees2.jpg');
@@ -29,14 +29,13 @@
     game.load.audio('shoot', './assets/Pecheew.m4a');
     game.load.audio('explosion', './assets/Explosion.m4a');
     game.load.audio('jump', './assets/Whoop.m4a');
-    game.load.audio('scream', './assets/WilhelmScream.mp3');
   }
 
   function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.add.sprite(0, 0, 'menu');
-    button = game.add.button(280, 275, 'start', startClick, this);
+    button = game.add.button(50, 275, 'start', startClick, this);
     button.scale.setTo(.5);
 
     enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -48,7 +47,7 @@
   }
 
   function startLvl2(){
-    game.state.start('boss');
+    game.state.start('lvl2');
   }
 
 

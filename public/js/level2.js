@@ -1,5 +1,5 @@
 'use strict';
-game.state.add('lvl2', {create:create, update:update});
+game.state.add('lvl2', {init:init, create:create, update:update});
 
 var jumpTimer = 0,
     map,
@@ -20,7 +20,7 @@ var jumpTimer = 0,
     records,
     record,
     healthText,
-    hitCount = 3,
+    hitCount = 0,
     score = 0,
     scoreText,
     fireButton,
@@ -31,6 +31,11 @@ var jumpTimer = 0,
     banner,
     cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
     cupIndex;
+
+function init() {
+  hitCount = hitCount;
+  score = score;
+}
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -57,7 +62,7 @@ function create() {
 
   //player stuff
 
-  player = game.add.sprite(6400, 0, 'head');
+  player = game.add.sprite(40, 0, 'head');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.collideWorldBounds = false;
   player.body.setSize(36, 56, 14, -8);
@@ -71,23 +76,23 @@ function create() {
 
   //collectables
 
-  // var recordPosition = [],
-  //     recordCounter = 0;
+  var recordPosition = [173, 674, 815, 1300, 1521, 1907, 2294, 2398, 2499, 2682, 2846, 2992, 3148, 3279, 3404, 3495, 3724, 4160, 4574, 4841, 5103, 5230, 5650, 5935, 6144, 6419, 6705],
+      recordCounter = 0;
 
-  // records = game.add.group();
-  // records.enableBody = true;
-  // records.createMultiple(19, 'record');
-  // records.forEach(function(record){
-  //   game.physics.enable(record, Phaser.Physics.ARCADE);
-  //   record.anchor.set(0.5, 0.5);
-  //   record.body.gravity.y = 750;
-  //   record.body.bounce = 0.8;
-  // });
+  records = game.add.group();
+  records.enableBody = true;
+  records.createMultiple(27, 'record');
+  records.forEach(function(record){
+    game.physics.enable(record, Phaser.Physics.ARCADE);
+    record.anchor.set(0.5, 0.5);
+    record.body.gravity.y = 750;
+    record.body.bounce = 0.8;
+  });
 
-  // records.forEach(function(record){
-  //   record.reset(recordPosition[recordCounter], 400);
-  //   recordCounter++;
-  // }, this);
+  records.forEach(function(record){
+    record.reset(recordPosition[recordCounter], 200);
+    recordCounter++;
+  }, this);
 
   //hat
 
@@ -146,7 +151,9 @@ function create() {
   bowties = game.add.group();
   bowties.enableBody = true;
   bowties.createMultiple(2, 'bowtie');
-  bowties.setAll('body.setSize', 64, 36);
+  bowties.forEach(function(bowtie){
+    bowtie.body.setSize(64, 30, 0, 13);
+  });
 
   beans = game.add.group();
   beans.enableBody = true;
@@ -171,11 +178,11 @@ function update() {
     game.physics.arcade.collide(cups, platformLayer);
     game.physics.arcade.collide(coffeecans, platformLayer);
     game.physics.arcade.overlap(player, records, collectRecords, null, this);
-    game.physics.arcade.overlap(player, banner, collectHat, null, this);
+    game.physics.arcade.overlap(player, banner, collectBanner, null, this);
     game.physics.arcade.overlap(bowties, platformLayer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
-    game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
-    game.physics.arcade.overlap(bowties, beans, collisionHandler, null, this);
+    game.physics.arcade.overlap(bowties, coffeecans, cupHandler, null, this);
+    game.physics.arcade.overlap(bowties, beans, cupHandler, null, this);
     game.physics.arcade.overlap(beans, platformLayer, killBowtie, null, this);
     game.physics.arcade.overlap(beans, cups, collisionHandler, null, this);
     game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
@@ -278,6 +285,16 @@ function update() {
         bean.kill();
       }
     });
+
+  if (score % 10 === 1) {
+    hitCount++;
+    score++;
+    healthText.text = 'Health: ' + hitCount;
+  }
+
+  if(hitCount === 0) {
+    gameOver();
+  }
 }
 
 function fireBowtie() {
@@ -335,7 +352,7 @@ function collectRecords (player, record) {
   scoreText.text = 'Local Artists\' Vinyl: ' + score;
 }
 
-function collectHat (player, hat) {
+function collectBanner (player, hat) {
   player.destroy();
   game.world.setBounds(0, 0, 0, 0);
   game.state.start('boss');
@@ -348,9 +365,6 @@ function playerDeathHandler (player, enemy) {
   player.body.x -= 75;
   --hitCount;
   healthText.text = 'Health: ' + hitCount;
-  if(hitCount === 0) {
-    alert('game over!');
-  }
 }
 
 function cupHandler (bowtie, cup) {

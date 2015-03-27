@@ -19,7 +19,7 @@ var jumpTimer = 0,
     records,
     record,
     healthText,
-    hitCount = 3,
+    hitCount = 2,
     score = 0,
     scoreText,
     fireButton,
@@ -141,7 +141,9 @@ function create() {
   bowties = game.add.group();
   bowties.enableBody = true;
   bowties.createMultiple(2, 'bowtie');
-  bowties.setAll('body.setSize', 64, 36);
+  bowties.forEach(function(bowtie){
+    bowtie.body.setSize(64, 30, 0, 13);
+  });
 
   beans = game.add.group();
   beans.enableBody = true;
@@ -172,8 +174,8 @@ function update() {
     game.physics.arcade.overlap(player, hat, collectHat, null, this);
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
     game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
-    game.physics.arcade.overlap(bowties, coffeecans, collisionHandler, null, this);
-    game.physics.arcade.overlap(bowties, beans, collisionHandler, null, this);
+    game.physics.arcade.overlap(bowties, coffeecans, cupHandler, null, this);
+    game.physics.arcade.overlap(bowties, beans, cupHandler, null, this);
     game.physics.arcade.overlap(beans, layer, killBowtie, null, this);
     game.physics.arcade.overlap(beans, cups, collisionHandler, null, this);
     game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
@@ -267,6 +269,17 @@ function update() {
       }
     });
 
+
+  if (score % 10 === 1) {
+    hitCount++;
+    score++
+    healthText.text = 'Health: ' + hitCount;
+  }
+
+  if(hitCount === 0) {
+    gameOver();
+  }
+
 }
 
 function fireBowtie() {
@@ -327,7 +340,7 @@ function collectRecords (player, record) {
 function collectHat (player, hat) {
   player.destroy();
   game.world.setBounds(0, 0, 0, 0);
-  game.state.start('lvl2');
+  game.state.start('lvl2', score, hitCount);
 }
 
 function playerDeathHandler (player, enemy) {
@@ -337,9 +350,6 @@ function playerDeathHandler (player, enemy) {
   player.body.x -= 75;
   --hitCount;
   healthText.text = 'Health: ' + hitCount;
-  if(hitCount === 0) {
-    alert('game over!');
-  }
 }
 
 function cupHandler (bowtie, cup) {
@@ -348,11 +358,15 @@ function cupHandler (bowtie, cup) {
   cup.kill();
 }
 
+function gameOver () {
+  game.state.start('menu');
+}
+
 function render() {
   game.debug.body(beans.children[0]);
   game.debug.body(player);
-  cups.forEachAlive(function(cup){
-    game.debug.body(cup);
+  bowties.forEachAlive(function(bowtie){
+    game.debug.body(bowtie);
   });
 }
 

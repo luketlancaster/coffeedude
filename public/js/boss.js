@@ -91,6 +91,7 @@ function update() {
   game.physics.arcade.collide(player, layer);
   game.physics.arcade.collide(jwb, layer);
   game.physics.arcade.collide(bullets, layer, collisionHandler, null, this);
+  game.physics.arcade.overlap(bullets, player, playerDeathHandler, null, this);
   game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
   game.physics.arcade.overlap(bowties, jwb, resetBowtie, null, this);
 
@@ -154,10 +155,6 @@ function update() {
 
   //jwb
 
-  if(jwbBounceCount === 2) {
-    text.destroy();
-  }
-
   if(jwb.body.blocked.down) {
     jwb.body.velocity.y = -200;
     jwbBounceCount++;
@@ -207,6 +204,21 @@ function update() {
 
   text.x = Math.floor(jwb.x + jwb.width / 2) - 100;
   text.y = Math.floor(jwb.y + jwb.height / 2);
+
+  if(jwbBounceCount === 2) {
+    text.destroy();
+  }
+
+  if (score % 10 === 1) {
+    hitCount++;
+    score++;
+    healthText.text = 'Health: ' + hitCount;
+  }
+
+  if(hitCount === 0) {
+    gameOver();
+  }
+
 }
 
 function fireBowtie() {
@@ -259,7 +271,7 @@ function collisionHandler (bullet, layer) {
 function playerDeathHandler (player, enemy) {
   player.animations.play('damage');
   explosionSound.play();
-  enemy.body.x = -200000;
+  enemy.kill();
   player.body.x -= 75;
   --hitCount;
   healthText.text = 'Health: ' + hitCount;
