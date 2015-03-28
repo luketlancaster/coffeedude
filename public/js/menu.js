@@ -47,7 +47,7 @@
   }
 
   function startLvl2(){
-    game.state.start('lvl2');
+    game.state.start('boss');
   }
 
 
