@@ -1,12 +1,10 @@
 (function(){
-
   'use strict';
-  game.state.add('lvl2', {init:init, create:create, update:update});
+  game.state.add('lvl1', {create:create, update:update});
 
   var jumpTimer = 0,
       map,
       layer,
-      platformLayer,
       cups,
       cup,
       coffeecans,
@@ -22,7 +20,7 @@
       records,
       record,
       healthText,
-      hitCount = 0,
+      hitCount = 2,
       score = 0,
       scoreText,
       fireButton,
@@ -30,14 +28,9 @@
       jumpSound,
       explosionSound,
       player,
-      banner,
-      cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
+      hat,
+      cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
       cupIndex;
-
-  function init() {
-    hitCount = hitCount;
-    score = score;
-  }
 
   function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -46,30 +39,25 @@
     //sounds
     explosionSound = game.add.audio('explosion');
     shotSound = game.add.audio('shoot');
-
     game.world.setBounds(0, 0, 800, 640);
 
-    game.bg = game.add.tileSprite(0, 0, 7040, 640, 'treeBG');
+    game.bg = game.add.tileSprite(0, 0, 7040, 640, 'bookshelf');
 
-    map = game.add.tilemap('background2');
+    map = game.add.tilemap('background');
     map.addTilesetImage('steampunk');
     map.addTilesetImage('blocks');
-    map.addTilesetImage('trees2');
-
-    layer = map.createLayer('background');
-    platformLayer = map.createLayer('platforms');
-    layer.resizeWorld();
-    platformLayer.resizeWorld();
     map.setCollisionByExclusion([1]);
 
+    layer = map.createLayer('foreground');
+    layer.resizeWorld();
 
     //player stuff
 
-    player = game.add.sprite(40, 0, 'head');
+    player = game.add.sprite(12, 520, 'head');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-    player.body.collideWorldBounds = false;
-    player.body.setSize(36, 56, 14, -8);
-    player.body.gravity.y = 400;
+    player.body.collideWorldBounds = true;
+    player.body.setSize(25, 50, 19, 0);
+    player.body.gravity.y = 450;
     player.animations.add('left', [2]);
     player.animations.add('right', [1]);
 
@@ -79,12 +67,12 @@
 
     //collectables
 
-    var recordPosition = [173, 674, 815, 1300, 1521, 1907, 2294, 2398, 2499, 2682, 2846, 2992, 3148, 3279, 3404, 3495, 3724, 4160, 4574, 4841, 5103, 5230, 5650, 5935, 6144, 6419, 6705],
+    var recordPosition = [138, 419, 690, 1340, 1472, 1957, 2064, 2800, 3065, 3582, 3919, 4202, 4538, 4868, 5109, 6022, 6479, 6766],
         recordCounter = 0;
 
     records = game.add.group();
     records.enableBody = true;
-    records.createMultiple(27, 'record');
+    records.createMultiple(18, 'record');
     records.forEach(function(record){
       game.physics.enable(record, Phaser.Physics.ARCADE);
       record.anchor.set(0.5, 0.5);
@@ -93,50 +81,50 @@
     });
 
     records.forEach(function(record){
-      record.reset(recordPosition[recordCounter], 200);
+      record.reset(recordPosition[recordCounter], 400);
       recordCounter++;
     }, this);
 
     //hat
 
-    banner = game.add.sprite(6982, 70, 'banner');
-    game.physics.enable(banner, Phaser.Physics.ARCADE);
-    banner.body.collideWorldBounds = true;
-    banner.animations.add('marquee', [0, 1, 2], 10, true);
-    banner.scale.set(2, 2);
+    hat = game.add.sprite(6798, 420, 'hat');
+    game.physics.enable(hat, Phaser.Physics.ARCADE);
+    hat.body.collideWorldBounds = true;
+    hat.body.gravity.y = 950;
+
 
     //enemies
 
-    var cupPosition = [475, 1079, 1733, 2113, 3015, 3711, 4129, 4839, 5252, 5678, 6688];
-    var counter = 0;
+    var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
+    var cupCounter = 0;
 
     cups = game.add.group();
     cups.enableBody = true;
-    cups.createMultiple(10, 'cup');
-    cups.setAll('collideWorldBounds', true);
+    cups.createMultiple(15, 'cup');
     cups.setAll('body.gravity.y', 950);
     cups.forEach(function(cup) {
       game.physics.enable(cup, Phaser.Physics.ARCADE);
       cup.anchor.set(0.5, 0.5);
-      cup.body.setSize(52, 63);
+      cup.body.setSize(44, 63);
       cup.body.gravity.y = 950;
       cup.animations.add('left', [0, 1, 2, 3], 10, true);
       cup.animations.add('right', [0, 3, 2, 1], 10, true);
     });
 
     cups.forEach(function(cup) {
-      cup.reset(cupPosition[counter], 90);
-      counter++;
+      cup.reset(cupPosition[cupCounter], 300);
+      cupCounter++;
     }, this);
 
     //cans
 
-    var coffeecanPosition = [597, 3437, 4000, 4531, 6287, 6743];
-    var counter = 0;
+    var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
+    var canCounter = 0;
 
     coffeecans = game.add.group();
     coffeecans.enableBody = true;
-    coffeecans.createMultiple(7, 'coffeecan');
+    coffeecans.createMultiple(13, 'coffeecan');
+    coffeecans.setAll('collideWorldBounds', true);
     coffeecans.forEach(function(coffeecan) {
       game.physics.enable(coffeecan, Phaser.Physics.ARCADE);
       coffeecan.body.gravity.y = 950;
@@ -145,8 +133,8 @@
     });
 
     coffeecans.forEach(function(coffeecan) {
-      coffeecan.reset(coffeecanPosition[counter], 300);
-      counter++;
+      coffeecan.reset(coffeecanPosition[canCounter], 300);
+      canCounter++;
     }, this);
 
 
@@ -160,8 +148,11 @@
 
     beans = game.add.group();
     beans.enableBody = true;
-    beans.createMultiple(2, 'bean');
-    beans.setAll('body.setSize', 32, 32);
+    beans.createMultiple(50, 'bean');
+    //beans.setAll('body.setSize', 22, 22);
+    beans.forEach(function(bean){
+      bean.body.setSize(15, 15);
+    });
 
     game.cameraLastX = game.camera.x;
     game.cameraLastY = game.camera.y;
@@ -175,73 +166,65 @@
 
   function update() {
 
-      game.physics.arcade.collide(player, platformLayer);
-      game.physics.arcade.collide(banner, platformLayer);
-      game.physics.arcade.collide(records, platformLayer);
-      game.physics.arcade.collide(cups, platformLayer);
-      game.physics.arcade.collide(coffeecans, platformLayer);
+      game.physics.arcade.collide(player, layer);
+      game.physics.arcade.collide(hat, layer);
+      game.physics.arcade.collide(records, layer);
+      game.physics.arcade.collide(cups, layer);
+      game.physics.arcade.collide(coffeecans, layer);
       game.physics.arcade.overlap(player, records, collectRecords, null, this);
-      game.physics.arcade.overlap(player, banner, collectBanner, null, this);
-      game.physics.arcade.overlap(bowties, platformLayer, killBowtie, null, this);
+      game.physics.arcade.overlap(player, hat, collectHat, null, this);
+      game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
       game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
       game.physics.arcade.overlap(bowties, coffeecans, cupHandler, null, this);
       game.physics.arcade.overlap(bowties, beans, cupHandler, null, this);
-      game.physics.arcade.overlap(beans, platformLayer, killBowtie, null, this);
+      game.physics.arcade.overlap(beans, layer, killBowtie, null, this);
       game.physics.arcade.overlap(beans, cups, collisionHandler, null, this);
       game.physics.arcade.overlap(player, beans, playerDeathHandler, null, this);
       game.physics.arcade.overlap(player, coffeecans, playerDeathHandler, null, this);
       game.physics.arcade.overlap(player, cups, playerDeathHandler, null, this);
 
       player.body.velocity.x = 0;
-      banner.animations.play('marquee');
+
 
       /* actual movement */
-      if (cursors.left.isDown) {
-        player.body.velocity.x = -250;
-        player.animations.play('left');
-      } else if (cursors.right.isDown) {
-        player.body.velocity.x = 250;
-        player.animations.play('right');
-      } else {
-        player.frame = 0;
-      }
-
-      if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-          player.body.velocity.y = -275;
-          jumpTimer = game.time.now + 750;
-      }
-
-      /* flying movement */
       // if (cursors.left.isDown) {
-      //   player.body.velocity.x = -750;
+      //   player.body.velocity.x = -250;
       //   player.animations.play('left');
       // } else if (cursors.right.isDown) {
-      //   player.body.velocity.x = 750;
+      //   player.body.velocity.x = 250;
       //   player.animations.play('right');
       // } else {
       //   player.frame = 0;
-      //   player.body.velocity.x = 0;
       // }
 
-      // if(cursors.up.isDown) {
-      //   player.body.velocity.y = -250;
-      // } else if(cursors.down.isDown) {
-      //   player.body.velocity.y = 250;
-      // } else {
-      //   player.body.velocity.y = 0;
-      // }
-      // if (player.body.onFloor() && game.time.now > jumpTimer) {
-      //     player.body.velocity.y = -350;
+      // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+      //     player.body.velocity.y = -250;
       //     jumpTimer = game.time.now + 750;
       // }
 
-      if(game.camera.x !== game.cameraLastX){
-        game.bg.x -= 0.2 * (game.cameraLastX - game.camera.x);
-        game.cameraLastX = game.camera.x;
+      /* flying movement */
+      if (cursors.left.isDown) {
+        player.body.velocity.x = -750;
+        player.animations.play('left');
+      } else if (cursors.right.isDown) {
+        player.body.velocity.x = 750;
+        player.animations.play('right');
+      } else {
+        player.frame = 0;
+        player.body.velocity.x = 0;
       }
 
-      if(player.body.y >= 700) {
-        player.body.y = 0;
+      if(cursors.up.isDown) {
+        player.body.velocity.y = -750;
+      } else if(cursors.down.isDown) {
+        player.body.velocity.y = 750;
+      } else {
+        player.body.velocity.y = 0;
+      }
+
+      if(game.camera.x !== game.cameraLastX){
+        game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+        game.cameraLastX = game.camera.x;
       }
 
       if(player.body.velocity.x >= 0) {
@@ -250,16 +233,14 @@
         facing = 'left';
       }
 
-      // cups
+      //cups
       cups.forEachAlive(function(cup) {
         if(cup.body.onFloor()) {
           cup.body.velocity.y = -350;
           cup.animations.play('left');
         }
-        if(cup.body.y >= 655) {
-          cup.kill();
-        }
-        if(cup.body.x - player.body.x <= 200) {
+
+        if(cup.body.x - player.body.x <= 300) {
           cupFire(cup);
         }
       });
@@ -289,6 +270,7 @@
         }
       });
 
+
     if (score % 10 === 1) {
       hitCount++;
       score++;
@@ -298,6 +280,7 @@
     if(hitCount === 0) {
       gameOver();
     }
+
   }
 
   function fireBowtie() {
@@ -355,13 +338,14 @@
     scoreText.text = 'Local Artists\' Vinyl: ' + score;
   }
 
-  function collectBanner (player, hat) {
+  function collectHat (player, hat) {
     player.destroy();
     game.world.setBounds(0, 0, 0, 0);
-    game.state.start('boss');
+    game.state.start('menu2', score, hitCount);
   }
 
   function playerDeathHandler (player, enemy) {
+    enemy.kill();
     player.animations.play('damage');
     explosionSound.play();
     enemy.body.x = -200000;
@@ -384,8 +368,8 @@
   function render() {
     game.debug.body(beans.children[0]);
     game.debug.body(player);
-    cups.forEachAlive(function(cup){
-      game.debug.body(cup);
+    bowties.forEachAlive(function(bowtie){
+      game.debug.body(bowtie);
     });
   }
 })();
