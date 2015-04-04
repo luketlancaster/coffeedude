@@ -223,16 +223,16 @@
       //   player.body.velocity.y = 0;
       // }
 
-      // if(game.camera.x !== game.cameraLastX){
-      //   game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
-      //   game.cameraLastX = game.camera.x;
-      // }
+      if(game.camera.x !== game.cameraLastX){
+        game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+        game.cameraLastX = game.camera.x;
+      }
 
-      // if(player.body.velocity.x >= 0) {
-      //   facing = 'right';
-      // } else {
-      //   facing = 'left';
-      // }
+      if(player.body.velocity.x >= 0) {
+        facing = 'right';
+      } else {
+        facing = 'left';
+      }
 
       //cups
       cups.forEachAlive(function(cup) {
