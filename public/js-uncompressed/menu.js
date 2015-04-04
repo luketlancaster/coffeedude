@@ -16,10 +16,12 @@
     game.load.image('bossBG', './assets/theatre.jpg');
     game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
+    game.load.image('reStart', './assets/reStartButton.png');
     game.load.image('victoryButton', './assets/victoryButton.png');
     game.load.image('menu', './assets/startmenu.png');
     game.load.image('menu2', './assets/startlvl2.png');
     game.load.image('bossLvlMenu', './assets/startBossLvl.png');
+    game.load.image('finalMenu', './assets/finalMenu.png');
     game.load.image('blocks', './assets/blocks.png');
     game.load.image('steampunk', './assets/steampunkish-tilec.png');
     game.load.image('trees2', './assets/trees2.jpg');

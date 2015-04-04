@@ -280,7 +280,7 @@
   }
 
   function newGame() {
-    this.game.state.start('menu');
+    this.game.state.start('finalMenu');
   }
 
   function killBowtie(bowtie, layer) {
