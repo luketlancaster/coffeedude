@@ -16,6 +16,7 @@
     game.load.image('bossBG', './assets/theatre.jpg');
     game.load.image('treeBG', './assets/woodgrain.jpg');
     game.load.image('start', './assets/button.png');
+    game.load.image('victoryButton', './assets/victoryButton.png');
     game.load.image('menu', './assets/startmenu.png');
     game.load.image('menu2', './assets/startlvl2.png');
     game.load.image('bossLvlMenu', './assets/startBossLvl.png');
@@ -49,7 +50,7 @@
   }
 
   function startLvl2(){
-    game.state.start('menu2');
+    game.state.start('boss');
   }
 
 

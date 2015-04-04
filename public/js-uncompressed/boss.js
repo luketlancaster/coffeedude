@@ -19,10 +19,13 @@
       explosionSound,
       jwb,
       jwbBounceCount = 0,
+      jwbHitCount = 0,
       bullets,
       bullet,
       bulletTime = 0,
       text,
+      style,
+      victoryButton,
       player;
 
   function create() {
@@ -83,7 +86,7 @@
     healthText = game.add.text(660, 20, 'Health: ' + game.hitCount, { fontSize: '32px', fill: '#FFF'});
     healthText.fixedToCamera = true;
 
-    var style = { font: "32px Arial", fill: "#fff", wordWrap: true, wordWrapWidth: jwb.width, align: "center" };
+    style = { font: "32px Arial", fill: "#fff", wordWrap: true, wordWrapWidth: jwb.width, align: "center" };
 
     text = game.add.text(0, 0, "You'll Never Get Me, Abe!", style);
     text.anchor.set(0.5);
@@ -96,7 +99,7 @@
     game.physics.arcade.collide(bullets, layer, collisionHandler, null, this);
     game.physics.arcade.overlap(bullets, player, playerDeathHandler, null, this);
     game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
-    game.physics.arcade.overlap(bowties, jwb, resetBowtie, null, this);
+    game.physics.arcade.overlap(bowties, jwb, jwbHit, null, this);
 
     player.body.velocity.x = 0;
 
@@ -187,7 +190,7 @@
       jwbBounceCount = 0;
     }
 
-    if (game.time.now > bulletTime) {
+    if (game.time.now > bulletTime && jwbHitCount <   3) {
       bullet = bullets.getFirstExists(false);
       if(bullet) {
         bullet.reset(jwb.x, jwb.y);
@@ -246,21 +249,38 @@
     }
   }
 
-  function fireBullet() {
-    if (game.time.now > bulletTime) {
-      if(bullet) {
-        bullet.reset(jwb.x, jwb.y);
-        bullet.velocity.x = -800;
-        bulletTime = game.time.now + 500;
+  // function fireBullet() {
+  //   if (game.time.now > bulletTime) {
+  //     if(bullet) {
+  //       bullet.reset(jwb.x, jwb.y);
+  //       bullet.velocity.x = -800;
+  //       bulletTime = game.time.now + 500;
+  //     }
+  //   }
+  // }
 
-      }
-    }
-  }
-
-  function resetBowtie(jwb, bowtie) {
+  function jwbHit(jwb, bowtie) {
     bowtie.kill();
     jwb.body.velocity.x *= 3;
     jwb.body.velocity.y *= 3;
+    jwbHitCount++;
+    if (jwbHitCount === 3) {
+      jwbDeath();
+    }
+  }
+
+  function jwbDeath() {
+    jwb.body.velocity.x = 0;
+    jwb.body.velocity.y = 0;
+    text = game.add.text(0, 0, "Ach! You got me this time, Abe!", style);
+    text.anchor.set(0.5);
+    text.x = Math.floor(jwb.x + jwb.width / 2) - 100;
+    text.y = Math.floor(jwb.y + jwb.height / 2);
+    victoryButton = game.add.button(300, 150, 'victoryButton', newGame, this);
+  }
+
+  function newGame() {
+    this.game.state.start('menu');
   }
 
   function killBowtie(bowtie, layer) {
