@@ -12,7 +12,7 @@
       bowTime = 0,
       healthText,
       hitCount = 3,
-      score = 0,
+      score,
       scoreText,
       fireButton,
       shotSound,
@@ -27,6 +27,8 @@
 
   function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    score = game.score;
+    hitCount = game.hitCount;
 
     //sounds
     explosionSound = game.add.audio('explosion');
@@ -75,10 +77,10 @@
     bowties.createMultiple(2, 'bowtie');
     bowties.setAll('body.setSize', 64, 36);
 
-    scoreText = game.add.text(20, 20, 'Local Artists\' Vinyl: 0', { fontSize: '32px', fill: '#FFF', align: 'center' });
+    scoreText = game.add.text(20, 20, 'Local Artists\' Vinyl: ' + game.score, { fontSize: '32px', fill: '#FFF', align: 'center' });
     scoreText.fixedToCamera = true;
 
-    healthText = game.add.text(660, 20, 'Health: 3', { fontSize: '32px', fill: '#FFF'});
+    healthText = game.add.text(660, 20, 'Health: ' + game.hitCount, { fontSize: '32px', fill: '#FFF'});
     healthText.fixedToCamera = true;
 
     var style = { font: "32px Arial", fill: "#fff", wordWrap: true, wordWrapWidth: jwb.width, align: "center" };
@@ -112,7 +114,7 @@
     }
 
     if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-        player.body.velocity.y = -350;
+        player.body.velocity.y = -300;
         jumpTimer = game.time.now + 750;
     }
 
@@ -227,7 +229,7 @@
     bowtie = bowties.getFirstExists(false);
     if (bowtie) {
       bowtie.reset(player.x - 30, player.y - 10);
-      bowtie.body.velocity.x = 500;
+      bowtie.body.velocity.x = 600;
       bowTime = game.time.now + 350;
       shotSound.play();
     }

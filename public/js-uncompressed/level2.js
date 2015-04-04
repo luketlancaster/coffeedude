@@ -1,7 +1,7 @@
 (function(){
 
   'use strict';
-  game.state.add('lvl2', {init:init, create:create, update:update});
+  game.state.add('lvl2', {create:create, update:update});
 
   var jumpTimer = 0,
       map,
@@ -22,8 +22,8 @@
       records,
       record,
       healthText,
-      hitCount = 2,
-      score = 0,
+      hitCount = 0,
+      score,
       scoreText,
       fireButton,
       shotSound,
@@ -34,14 +34,16 @@
       cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
       cupIndex;
 
-  function init() {
-    hitCount = hitCount;
-    score = score;
-  }
+  // function init() {
+  //   hitCount = hitCount;
+  //   score = score;
+  // }
 
   function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     cupIndex = 0;
+    score = game.score;
+    hitCount = game.hitCount;
 
     //sounds
     explosionSound = game.add.audio('explosion');
@@ -166,10 +168,10 @@
     game.cameraLastX = game.camera.x;
     game.cameraLastY = game.camera.y;
 
-    scoreText = game.add.text(20, 20, 'Local Artists\' Vinyl: 0', { fontSize: '32px', fill: '#FFF', align: 'center' });
+    scoreText = game.add.text(20, 20, 'Local Artists\' Vinyl: ' + game.score, { fontSize: '32px', fill: '#FFF', align: 'center' });
     scoreText.fixedToCamera = true;
 
-    healthText = game.add.text(660, 20, 'Health: 3', { fontSize: '32px', fill: '#FFF'});
+    healthText = game.add.text(660, 20, 'Health: ' + game.hitCount, { fontSize: '32px', fill: '#FFF'});
     healthText.fixedToCamera = true;
   }
 
@@ -306,7 +308,7 @@
 
           if (bowtie) {
               bowtie.reset(player.x - 30, player.y - 20);
-              bowtie.body.velocity.x = 500;
+              bowtie.body.velocity.x = 600;
               bowTime = game.time.now + 750;
               shotSound.play();
           }
@@ -315,7 +317,7 @@
 
           if (bowtie) {
               bowtie.reset(player.x - 30, player.y - 20);
-              bowtie.body.velocity.x = -500;
+              bowtie.body.velocity.x = -600;
               bowTime = game.time.now + 750;
               shotSound.play();
           }
@@ -358,7 +360,9 @@
   function collectBanner (player, hat) {
     player.destroy();
     game.world.setBounds(0, 0, 0, 0);
-    game.state.start('boss');
+    game.state.start('bossMenu');
+    game.hitCount = hitCount;
+    game.score = score;
   }
 
   function playerDeathHandler (player, enemy) {

@@ -18,6 +18,7 @@
     game.load.image('start', './assets/button.png');
     game.load.image('menu', './assets/startmenu.png');
     game.load.image('menu2', './assets/startlvl2.png');
+    game.load.image('bossLvlMenu', './assets/startBossLvl.png');
     game.load.image('blocks', './assets/blocks.png');
     game.load.image('steampunk', './assets/steampunkish-tilec.png');
     game.load.image('trees2', './assets/trees2.jpg');
@@ -49,7 +50,6 @@
 
   function startLvl2(){
     game.state.start('menu2');
-    console.log('yes');
   }
 
 

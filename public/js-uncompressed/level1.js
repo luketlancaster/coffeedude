@@ -21,7 +21,7 @@
       record,
       healthText,
       hitCount = 2,
-      score = 0,
+      score,
       scoreText,
       fireButton,
       shotSound,
@@ -35,6 +35,8 @@
   function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     cupIndex = 0;
+    score = 0;
+    game.score = score;
 
     //sounds
     explosionSound = game.add.audio('explosion');
@@ -149,7 +151,6 @@
     beans = game.add.group();
     beans.enableBody = true;
     beans.createMultiple(50, 'bean');
-    //beans.setAll('body.setSize', 22, 22);
     beans.forEach(function(bean){
       bean.body.setSize(15, 15);
     });
@@ -187,51 +188,51 @@
 
 
       /* actual movement */
-      // if (cursors.left.isDown) {
-      //   player.body.velocity.x = -250;
-      //   player.animations.play('left');
-      // } else if (cursors.right.isDown) {
-      //   player.body.velocity.x = 250;
-      //   player.animations.play('right');
-      // } else {
-      //   player.frame = 0;
-      // }
-
-      // if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-      //     player.body.velocity.y = -250;
-      //     jumpTimer = game.time.now + 750;
-      // }
-
-      /* flying movement */
       if (cursors.left.isDown) {
-        player.body.velocity.x = -750;
+        player.body.velocity.x = -250;
         player.animations.play('left');
       } else if (cursors.right.isDown) {
-        player.body.velocity.x = 750;
+        player.body.velocity.x = 250;
         player.animations.play('right');
       } else {
         player.frame = 0;
-        player.body.velocity.x = 0;
       }
 
-      if(cursors.up.isDown) {
-        player.body.velocity.y = -750;
-      } else if(cursors.down.isDown) {
-        player.body.velocity.y = 750;
-      } else {
-        player.body.velocity.y = 0;
+      if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
+          player.body.velocity.y = -275;
+          jumpTimer = game.time.now + 750;
       }
 
-      if(game.camera.x !== game.cameraLastX){
-        game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
-        game.cameraLastX = game.camera.x;
-      }
+      /* flying movement */
+      // if (cursors.left.isDown) {
+      //   player.body.velocity.x = -750;
+      //   player.animations.play('left');
+      // } else if (cursors.right.isDown) {
+      //   player.body.velocity.x = 750;
+      //   player.animations.play('right');
+      // } else {
+      //   player.frame = 0;
+      //   player.body.velocity.x = 0;
+      // }
 
-      if(player.body.velocity.x >= 0) {
-        facing = 'right';
-      } else {
-        facing = 'left';
-      }
+      // if(cursors.up.isDown) {
+      //   player.body.velocity.y = -750;
+      // } else if(cursors.down.isDown) {
+      //   player.body.velocity.y = 750;
+      // } else {
+      //   player.body.velocity.y = 0;
+      // }
+
+      // if(game.camera.x !== game.cameraLastX){
+      //   game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+      //   game.cameraLastX = game.camera.x;
+      // }
+
+      // if(player.body.velocity.x >= 0) {
+      //   facing = 'right';
+      // } else {
+      //   facing = 'left';
+      // }
 
       //cups
       cups.forEachAlive(function(cup) {
@@ -289,7 +290,7 @@
 
           if (bowtie) {
               bowtie.reset(player.x - 30, player.y - 20);
-              bowtie.body.velocity.x = 500;
+              bowtie.body.velocity.x = 600;
               bowTime = game.time.now + 750;
               shotSound.play();
           }
@@ -298,7 +299,7 @@
 
           if (bowtie) {
               bowtie.reset(player.x - 30, player.y - 20);
-              bowtie.body.velocity.x = -500;
+              bowtie.body.velocity.x = -600;
               bowTime = game.time.now + 750;
               shotSound.play();
           }
@@ -341,7 +342,9 @@
   function collectHat (player, hat) {
     player.destroy();
     game.world.setBounds(0, 0, 0, 0);
-    game.state.start('menu2', score, hitCount);
+    game.score = score;
+    game.hitCount = hitCount;
+    game.state.start('menu2');
   }
 
   function playerDeathHandler (player, enemy) {
