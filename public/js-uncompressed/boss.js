@@ -190,7 +190,7 @@
       jwbBounceCount = 0;
     }
 
-    if (game.time.now > bulletTime && jwbHitCount < 3 && hitCount <= 0) {
+    if (game.time.now > bulletTime && jwbHitCount < 3 && hitCount >= 1) {
       bullet = bullets.getFirstExists(false);
       if(bullet) {
         bullet.reset(jwb.x, jwb.y);
@@ -300,7 +300,7 @@
     player.animations.play('damage');
     explosionSound.play();
     enemy.kill();
-    player.body.x -= 75;
+    player.body.y -= 75;
     --hitCount;
     healthText.text = 'Health: ' + hitCount;
   }
