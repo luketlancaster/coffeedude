@@ -8,6 +8,7 @@
     game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.tilemap('background2', './assets/stage2.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.tilemap('bossfight', './assets/bossfight.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level3', './assets/tilesets/stage3.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.spritesheet('cup', './assets/enemies/buxscupsheet.png', 64, 64, 4);
     game.load.spritesheet('head', './assets/player/headsheet.png', 64, 64, 3);
     game.load.spritesheet('jwb', './assets/enemies/johnwilkesbooth.png', 128, 137, 2);
@@ -43,16 +44,16 @@
     button = game.add.button(50, 275, 'start', startClick, this);
     button.scale.setTo(.5);
 
-    // enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    // enterKey.onDown.add(startLvl2);
+    enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    enterKey.onDown.add(startLvl3);
   }
 
   function startClick () {
     this.game.state.start('lvl1');
   }
 
-  function startLvl2(){
-    game.state.start('boss');
+  function startLvl3(){
+    game.state.start('level3');
   }
 
 

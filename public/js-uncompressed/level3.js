@@ -1,6 +1,6 @@
-(function(){
+// (function(){
   'use strict';
-  game.state.add('lvl1', {create:create, update:update});
+  game.state.add('level3', {create:create, update:update});
 
   var jumpTimer = 0,
       map,
@@ -30,7 +30,9 @@
       player,
       hat,
       cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
-      cupIndex;
+      cupIndex,
+      cameraScrollRate = .05,
+      gameStarted = false;
 
   function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -45,8 +47,7 @@
 
     game.bg = game.add.tileSprite(0, 0, 7040, 640, 'bookshelf');
 
-    map = game.add.tilemap('background');
-    map.addTilesetImage('steampunk');
+    map = game.add.tilemap('level3');
     map.addTilesetImage('blocks');
     map.setCollisionByExclusion([1]);
 
@@ -55,9 +56,9 @@
 
     //player stuff
 
-    player = game.add.sprite(12, 520, 'head');
+    player = game.add.sprite(12, 220, 'head');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-    player.body.collideWorldBounds = true;
+    player.body.collideWorldBounds = false;
     player.body.setSize(25, 50, 19, 0);
     player.body.gravity.y = 450;
     player.animations.add('left', [2]);
@@ -65,7 +66,7 @@
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
+    // game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
 
     //collectables
 
@@ -168,12 +169,10 @@
   function update() {
 
       game.physics.arcade.collide(player, layer);
-      game.physics.arcade.collide(hat, layer);
       game.physics.arcade.collide(records, layer);
       game.physics.arcade.collide(cups, layer);
       game.physics.arcade.collide(coffeecans, layer);
       game.physics.arcade.overlap(player, records, collectRecords, null, this);
-      game.physics.arcade.overlap(player, hat, collectHat, null, this);
       game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
       game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
       game.physics.arcade.overlap(bowties, coffeecans, cupHandler, null, this);
@@ -184,8 +183,7 @@
       game.physics.arcade.overlap(player, coffeecans, playerDeathHandler, null, this);
       game.physics.arcade.overlap(player, cups, playerDeathHandler, null, this);
 
-      player.body.velocity.x = 10;
-
+      player.body.velocity.x = 0;
 
       /* actual movement */
       if (cursors.left.isDown) {
@@ -198,15 +196,10 @@
         player.frame = 0;
       }
 
-      if (player.body.touching.down) {
-        player.body.velocity.x = player.body.velocity.x / 2;
+      if (player.body.blocked.down) {
+        player.body.velocity.y = -275;
+        gameStarted = true;
       }
-
-      if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
-          player.body.velocity.y = -275;
-          jumpTimer = game.time.now + 750;
-      }
-
       /* flying movement */
       // if (cursors.left.isDown) {
       //   player.body.velocity.x = -750;
@@ -220,16 +213,28 @@
       // }
 
       // if(cursors.up.isDown) {
-      //   player.body.velocity.y = -750;
+      //   player.body.velocity.y = -250;
       // } else if(cursors.down.isDown) {
-      //   player.body.velocity.y = 750;
+      //   player.body.velocity.y = 250;
       // } else {
       //   player.body.velocity.y = 0;
       // }
+      // if (player.body.onFloor() && game.time.now > jumpTimer) {
+      //     player.body.velocity.y = -350;
+      //     jumpTimer = game.time.now + 750;
+      // }
+
+      if (gameStarted) {
+        game.camera.x = (game.camera.x + 2)
+      }
 
       if(game.camera.x !== game.cameraLastX){
-        game.bg.x -= 0.4 * (game.cameraLastX - game.camera.x);
+        game.bg.x -= 0.2 * (game.cameraLastX - game.camera.x);
         game.cameraLastX = game.camera.x;
+      }
+
+      if(player.body.y >= 700) {
+        gameOver();
       }
 
       if(player.body.velocity.x >= 0) {
@@ -238,14 +243,16 @@
         facing = 'left';
       }
 
-      //cups
+      // cups
       cups.forEachAlive(function(cup) {
         if(cup.body.onFloor()) {
           cup.body.velocity.y = -350;
           cup.animations.play('left');
         }
-
-        if(cup.body.x - player.body.x <= 300) {
+        if(cup.body.y >= 655) {
+          cup.kill();
+        }
+        if(cup.body.x - player.body.x <= 200) {
           cupFire(cup);
         }
       });
@@ -275,7 +282,6 @@
         }
       });
 
-
     if (score % 10 === 1) {
       hitCount++;
       score++;
@@ -285,7 +291,6 @@
     if(hitCount === 0) {
       gameOver();
     }
-
   }
 
   function fireBowtie() {
@@ -379,4 +384,4 @@
       game.debug.body(bowtie);
     });
   }
-})();
+// })();
