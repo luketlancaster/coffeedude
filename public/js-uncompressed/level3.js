@@ -45,7 +45,7 @@
     shotSound = game.add.audio('shoot');
     game.world.setBounds(0, 0, 800, 640);
 
-    game.bg = game.add.tileSprite(0, 0, 7040, 640, 'bookshelf');
+    game.bg = game.add.tileSprite(0, 0, 7040, 640, 'soviatFlag');
 
     map = game.add.tilemap('level3');
     map.addTilesetImage('blocks');
@@ -58,7 +58,7 @@
 
     player = game.add.sprite(12, 220, 'head');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-    player.body.collideWorldBounds = false;
+    player.body.collideWorldBounds = true;
     player.body.setSize(25, 50, 19, 0);
     player.body.gravity.y = 450;
     player.animations.add('left', [2]);
@@ -226,6 +226,10 @@
 
       if (gameStarted) {
         game.camera.x = (game.camera.x + 2)
+      }
+
+      if (player.x < game.cameraLastX) {
+        player.x + 2
       }
 
       if(game.camera.x !== game.cameraLastX){
