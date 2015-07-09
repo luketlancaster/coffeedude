@@ -29,6 +29,7 @@
       explosionSound,
       player,
       hat,
+      bar,
       cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
       cupIndex,
       cameraScrollRate = .05,
@@ -58,15 +59,20 @@
 
     player = game.add.sprite(12, 220, 'head');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-    player.body.collideWorldBounds = true;
+    player.body.collideWorldBounds = false;
     player.body.setSize(25, 50, 19, 0);
-    player.body.gravity.y = 450;
+    player.body.gravity.y = 0;
     player.animations.add('left', [2]);
     player.animations.add('right', [1]);
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    // game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
+    game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
+
+    //force bar
+    bar = game.add.sprite(-10, 0, 'forceBar');
+    game.physics.enable(bar, Phaser.Physics.ARCADE);
+    bar.fixedToCamera = true;
 
     //collectables
 
@@ -97,25 +103,24 @@
 
 
     //enemies
-
-    var cupPosition = [553,985, 1099, 1214, 1879, 2712, 2929, 3197, 3767, 4291, 4736, 4995, 5244, 6347, 6989];
+    var cupPosition = [214,627,982,1397,1912,2263,2417,2552,2709,3094,3503,3919,4402,4975,5392,5841,6323,6703];
     var cupCounter = 0;
 
     cups = game.add.group();
     cups.enableBody = true;
-    cups.createMultiple(15, 'cup');
-    cups.setAll('body.gravity.y', 950);
+    cups.createMultiple(18, 'cup');
     cups.forEach(function(cup) {
       game.physics.enable(cup, Phaser.Physics.ARCADE);
       cup.anchor.set(0.5, 0.5);
       cup.body.setSize(44, 63);
       cup.body.gravity.y = 950;
+      cup.body.collideWorldBounds = true;
       cup.animations.add('left', [0, 1, 2, 3], 10, true);
       cup.animations.add('right', [0, 3, 2, 1], 10, true);
     });
 
     cups.forEach(function(cup) {
-      cup.reset(cupPosition[cupCounter], 300);
+      cup.reset((cupPosition[cupCounter] + 12), 600);
       cupCounter++;
     }, this);
 
@@ -172,6 +177,7 @@
       game.physics.arcade.collide(records, layer);
       game.physics.arcade.collide(cups, layer);
       game.physics.arcade.collide(coffeecans, layer);
+      game.physics.arcade.collide(player, bar);
       game.physics.arcade.overlap(player, records, collectRecords, null, this);
       game.physics.arcade.overlap(bowties, layer, killBowtie, null, this);
       game.physics.arcade.overlap(bowties, cups, cupHandler, null, this);
@@ -201,32 +207,32 @@
         gameStarted = true;
       }
       /* flying movement */
-      // if (cursors.left.isDown) {
-      //   player.body.velocity.x = -750;
-      //   player.animations.play('left');
-      // } else if (cursors.right.isDown) {
-      //   player.body.velocity.x = 750;
-      //   player.animations.play('right');
-      // } else {
-      //   player.frame = 0;
-      //   player.body.velocity.x = 0;
-      // }
-
-      // if(cursors.up.isDown) {
-      //   player.body.velocity.y = -250;
-      // } else if(cursors.down.isDown) {
-      //   player.body.velocity.y = 250;
-      // } else {
-      //   player.body.velocity.y = 0;
-      // }
-      // if (player.body.onFloor() && game.time.now > jumpTimer) {
-      //     player.body.velocity.y = -350;
-      //     jumpTimer = game.time.now + 750;
-      // }
-
-      if (gameStarted) {
-        game.camera.x = (game.camera.x + 2)
+      if (cursors.left.isDown) {
+        player.body.velocity.x = -350;
+        player.animations.play('left');
+      } else if (cursors.right.isDown) {
+        player.body.velocity.x = 350;
+        player.animations.play('right');
+      } else {
+        player.frame = 0;
+        player.body.velocity.x = 0;
       }
+
+      if(cursors.up.isDown) {
+        player.body.velocity.y = -250;
+      } else if(cursors.down.isDown) {
+        player.body.velocity.y = 250;
+      } else {
+        player.body.velocity.y = 0;
+      }
+      if (player.body.onFloor() && game.time.now > jumpTimer) {
+          player.body.velocity.y = -350;
+          jumpTimer = game.time.now + 750;
+      }
+
+      // if (gameStarted) {
+      //   game.camera.x = (game.camera.x + 2)
+      // }
 
       if (player.x < game.cameraLastX) {
         player.x + 2
@@ -249,7 +255,7 @@
 
       // cups
       cups.forEachAlive(function(cup) {
-        if(cup.body.onFloor()) {
+        if(cup.body.y > 559) {
           cup.body.velocity.y = -350;
           cup.animations.play('left');
         }
