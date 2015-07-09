@@ -57,7 +57,7 @@
 
     //player stuff
 
-    player = game.add.sprite(12, 220, 'head');
+    player = game.add.sprite(12, 420, 'head');
     game.physics.enable(player, Phaser.Physics.ARCADE);
     player.body.collideWorldBounds = false;
     player.body.setSize(25, 50, 19, 0);
@@ -103,12 +103,12 @@
 
 
     //enemies
-    var cupPosition = [214,627,982,1397,1912,2263,2417,2552,2709,3094,3503,3919,4402,4975,5392,5841,6323,6703];
+    var cupPosition = [627,982,1397,1912,2263,2417,2552,2709,3094,3503,3919,4402,4975,5392,5841,6323,6703];
     var cupCounter = 0;
 
     cups = game.add.group();
     cups.enableBody = true;
-    cups.createMultiple(18, 'cup');
+    cups.createMultiple(17, 'cup');
     cups.forEach(function(cup) {
       game.physics.enable(cup, Phaser.Physics.ARCADE);
       cup.anchor.set(0.5, 0.5);
@@ -126,22 +126,22 @@
 
     //cans
 
-    var coffeecanPosition = [327, 740, 1640, 2190, 2500, 3390, 4098, 4410, 5450, 5800, 6160, 6566, 6844];
+    var coffeecanPosition = [493,756,1205,1557,1813,2070,2902,3286,3696,4152,4593,4756,5168,5619,6072,6484,6867];
     var canCounter = 0;
 
     coffeecans = game.add.group();
     coffeecans.enableBody = true;
-    coffeecans.createMultiple(13, 'coffeecan');
+    coffeecans.createMultiple(17, 'coffeecan');
     coffeecans.setAll('collideWorldBounds', true);
     coffeecans.forEach(function(coffeecan) {
       game.physics.enable(coffeecan, Phaser.Physics.ARCADE);
-      coffeecan.body.gravity.y = 950;
+      coffeecan.body.gravity.y = 0;
       coffeecan.anchor.set(0.5, 0.5);
       coffeecan.body.setSize(41, 48);
     });
 
     coffeecans.forEach(function(coffeecan) {
-      coffeecan.reset(coffeecanPosition[canCounter], 300);
+      coffeecan.reset((coffeecanPosition[canCounter] + 20), 26);
       canCounter++;
     }, this);
 
@@ -256,7 +256,7 @@
       // cups
       cups.forEachAlive(function(cup) {
         if(cup.body.y > 559) {
-          cup.body.velocity.y = -350;
+          cup.body.velocity.y = -650;
           cup.animations.play('left');
         }
         if(cup.body.y >= 655) {
@@ -270,7 +270,15 @@
       //coffeecans
       coffeecans.forEachAlive(function(can){
         can.body.velocity.x = 0;
-        can.body.velocity.x = cupPath[cupIndex];
+        if (can.body.position.y > 493) {
+          can.body.velocity.x = cupPath[cupIndex];
+        }
+        if(can.body.x - player.body.x <= 200) {
+          can.body.velocity.y = 600;
+        }
+        if(can.body.position.y > 493) {
+          can.body.velocity.y = 0;
+        }
       });
       cupIndex = cupIndex + 1 >= cupPath.length ? 0 : cupIndex + 1;
 
