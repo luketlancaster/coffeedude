@@ -27,12 +27,14 @@
       shotSound,
       jumpSound,
       explosionSound,
+      fallSound,
       player,
       hat,
       bar,
       cupPath = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150, -150],
       cupIndex,
       cameraScrollRate = .05,
+      playSound = false,
       gameStarted = false;
 
   function create() {
@@ -44,6 +46,7 @@
     //sounds
     explosionSound = game.add.audio('explosion');
     shotSound = game.add.audio('shoot');
+    fallSound = game.add.audio('fall');
     game.world.setBounds(0, 0, 800, 640);
 
     game.bg = game.add.tileSprite(0, 0, 7040, 640, 'soviatFlag');
@@ -61,13 +64,12 @@
     game.physics.enable(player, Phaser.Physics.ARCADE);
     player.body.collideWorldBounds = false;
     player.body.setSize(25, 50, 19, 0);
-    player.body.gravity.y = 0;
+    player.body.gravity.y = 400;
     player.animations.add('left', [2]);
     player.animations.add('right', [1]);
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN_TIGHT);
 
     //force bar
     bar = game.add.sprite(-10, 0, 'forceBar');
@@ -141,7 +143,7 @@
     });
 
     coffeecans.forEach(function(coffeecan) {
-      coffeecan.reset((coffeecanPosition[canCounter] + 20), 26);
+      coffeecan.reset((coffeecanPosition[canCounter] + 20), -48);
       canCounter++;
     }, this);
 
@@ -207,32 +209,32 @@
         gameStarted = true;
       }
       /* flying movement */
-      if (cursors.left.isDown) {
-        player.body.velocity.x = -350;
-        player.animations.play('left');
-      } else if (cursors.right.isDown) {
-        player.body.velocity.x = 350;
-        player.animations.play('right');
-      } else {
-        player.frame = 0;
-        player.body.velocity.x = 0;
-      }
-
-      if(cursors.up.isDown) {
-        player.body.velocity.y = -250;
-      } else if(cursors.down.isDown) {
-        player.body.velocity.y = 250;
-      } else {
-        player.body.velocity.y = 0;
-      }
-      if (player.body.onFloor() && game.time.now > jumpTimer) {
-          player.body.velocity.y = -350;
-          jumpTimer = game.time.now + 750;
-      }
-
-      // if (gameStarted) {
-      //   game.camera.x = (game.camera.x + 2)
+      // if (cursors.left.isDown) {
+      //   player.body.velocity.x = -350;
+      //   player.animations.play('left');
+      // } else if (cursors.right.isDown) {
+      //   player.body.velocity.x = 350;
+      //   player.animations.play('right');
+      // } else {
+      //   player.frame = 0;
+      //   player.body.velocity.x = 0;
       // }
+      //
+      // if(cursors.up.isDown) {
+      //   player.body.velocity.y = -250;
+      // } else if(cursors.down.isDown) {
+      //   player.body.velocity.y = 250;
+      // } else {
+      //   player.body.velocity.y = 0;
+      // }
+      // if (player.body.onFloor() && game.time.now > jumpTimer) {
+      //     player.body.velocity.y = -350;
+      //     jumpTimer = game.time.now + 750;
+      // }
+
+      if (gameStarted && player.body.position.x > 300) {
+        game.camera.x = (game.camera.x + 2)
+      }
 
       if (player.x < game.cameraLastX) {
         player.x + 2
@@ -274,10 +276,20 @@
           can.body.velocity.x = cupPath[cupIndex];
         }
         if(can.body.x - player.body.x <= 200) {
-          can.body.velocity.y = 600;
+          can.body.gravity.y = 1000;
+        }
+        if(can.body.velocity.y > 0 && can.body.position.y < -47) {
+          if (!fallSound.isPlaying) {
+            fallSound.play();
+          }
         }
         if(can.body.position.y > 493) {
-          can.body.velocity.y = 0;
+          can.body.gravity.y = 0;
+        }
+        if(can.body.position.y === 495) {
+          if(!hitSound.isPlaying) {
+            hitSound.play();
+          }
         }
       });
       cupIndex = cupIndex + 1 >= cupPath.length ? 0 : cupIndex + 1;
