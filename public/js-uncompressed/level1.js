@@ -184,7 +184,7 @@
       game.physics.arcade.overlap(player, coffeecans, playerDeathHandler, null, this);
       game.physics.arcade.overlap(player, cups, playerDeathHandler, null, this);
 
-      player.body.velocity.x = 10;
+      player.body.velocity.x = 0;
 
 
       /* actual movement */

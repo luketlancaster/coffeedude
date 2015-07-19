@@ -1,8 +1,9 @@
 (function() {
-  game.state.add('menu', {preload:preload, create:create});
+  game.state.add('menu', {preload:preload, create:create, update:update});
   game.state.start('menu');
   var button,
-      enterKey;
+      enterKey,
+      aKey;
 
   function preload() {
     game.load.tilemap('background', './assets/groundfloor.json', null, Phaser.Tilemap.TILED_JSON);
@@ -37,7 +38,7 @@
     game.load.audio('shoot', './assets/Pecheew.m4a');
     game.load.audio('explosion', './assets/Explosion.m4a');
     game.load.audio('jump', './assets/Whoop.m4a');
-    game.load.audio('fall', './assets/fall.m4a');
+    game.load.audio('fall   ', './assets/fall.m4a');
   }
 
   function create(){
@@ -48,7 +49,13 @@
     button.scale.setTo(.5);
 
     enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    enterKey.onDown.add(startLvl3);
+    aKey = game.input.keyboard.addKey(Phaser.Keyboard.A)
+  }
+
+  function update() {
+    if (aKey.isDown && enterKey.isDown) {
+      startLvl3();
+    }
   }
 
   function startClick () {

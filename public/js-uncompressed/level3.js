@@ -1,4 +1,4 @@
-// (function(){
+(function(){
   'use strict';
   game.state.add('level3', {create:create, update:update});
 
@@ -232,7 +232,7 @@
       //     jumpTimer = game.time.now + 750;
       // }
 
-      if (gameStarted && player.body.position.x > 300) {
+      if (gameStarted && player.body.position.x > 300 ) {
         game.camera.x = (game.camera.x + 2)
       }
 
@@ -414,4 +414,4 @@
       game.debug.body(bowtie);
     });
   }
-// })();
+})();
