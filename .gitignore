@@ -30,4 +30,5 @@ node_modules
 .lock-wscript
 
 *.tar.gx
-
+*.app
+*.zip
