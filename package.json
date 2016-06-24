@@ -1,8 +1,9 @@
 {
   "name": "coffeedude",
+  "productName": "coffeedude",
   "version": "1.0.0",
   "description": "",
-  "main": "index.html",
+  "main": "public/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,5 +18,6 @@
   },
   "homepage": "https://github.com/luketlancaster/coffeedude",
   "devDependencies": {
+      "electron-prebuilt": "^1.2.0"
   }
 }
